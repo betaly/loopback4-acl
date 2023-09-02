@@ -1,6 +1,6 @@
 {
   "name": "loopback4-casl",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Access control for Loopback 4 with CASL",
   "keywords": [
     "loopback",
