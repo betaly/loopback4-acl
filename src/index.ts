@@ -1,3 +1,5 @@
+export * from '@casl/ability';
+
 export * from './actions';
 export * from './authorizer';
 export * from './bindings';
