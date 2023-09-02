@@ -69,9 +69,11 @@ export class AbilityService<
     ability.permissionsFor('everyone');
     ability.permissionsFor('every');
 
-    if (user.roles?.length) {
-      debug(`Applying user roles [${user.roles.join(', ')}] permissions`);
-      user.roles.forEach(role => ability.permissionsFor(role));
+    const roles = toArray(user.roles ?? user.role);
+
+    if (roles.length > 0) {
+      debug(`Applying user roles [${roles.join(', ')}] permissions`);
+      roles.forEach(role => ability.permissionsFor(role));
     }
 
     if (skipConditions) {

@@ -17,7 +17,8 @@ export type PermissionsMetadata = Permissions<any>[];
 
 export interface AuthUser<ROLE = string, ID = string> {
   id: ID;
-  roles: ROLE[];
+  role?: ROLE;
+  roles?: ROLE[];
 }
 
 export type UserResolver<User extends AuthUser = AuthUser> = (context: Context) => Promise<User | undefined>;

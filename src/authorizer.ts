@@ -17,6 +17,7 @@ import {CaslBindings} from './keys';
 import {AbilityService} from './services';
 import {sureRunSubjectHooks} from './subjects';
 import {UserResolver} from './types';
+import {toArray} from './utils';
 
 const debug = debugFactory('casl:authorizer');
 
@@ -51,7 +52,7 @@ export class CaslAuthorizer implements Provider<Authorizer> {
       return AuthorizationDecision.ABSTAIN;
     }
 
-    const {roles} = user ?? [];
+    const roles = toArray(user.roles ?? user.role);
 
     const superuserRole = await this.getSuperUserRole?.();
     if (superuserRole && roles.includes(superuserRole)) {
