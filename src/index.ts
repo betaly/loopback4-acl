@@ -1,5 +1,3 @@
-export * from '@casl/ability';
-
 export * from './actions';
 export * from './authorizer';
 export * from './bindings';
@@ -11,3 +9,4 @@ export * from './keys';
 export * from './permissions';
 export * from './services';
 export * from './types';
+export * from '@casl/ability';
