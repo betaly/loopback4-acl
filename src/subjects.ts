@@ -4,7 +4,7 @@ import debugFactory from 'debug';
 import {uid} from 'uid';
 
 import {AuthContext} from './context';
-import {CaslBindings} from './keys';
+import {CaslBindings, CaslTags} from './keys';
 import {AnyClass, AnyObject, SubjectResolveFn, SubjectResolver} from './types';
 import {isBindingAddress, isSubjectResolver} from './utils';
 
@@ -48,7 +48,10 @@ function toAuthHooks<Subject = AnyObject>(resolvers: Record<string, SubjectResol
         subject = await resolve(ctx);
       }
 
-      invocationContext.bind(key).to(subject as Subject);
+      invocationContext
+        .bind(key)
+        .to(subject as Subject)
+        .tag(CaslTags.SUBJECT);
 
       // bind first subject to CaslBindings.SUBJECT if not bound yet
       if (!invocationContext.contains(CaslBindings.SUBJECT)) {

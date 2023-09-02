@@ -16,3 +16,7 @@ export namespace CaslBindings {
     export const SUBJECT_HOOKS = BindingKey.create<AuthHookFn[]>('casl.auth.subjectHooks');
   }
 }
+
+export namespace CaslTags {
+  export const SUBJECT = 'casl.subject';
+}

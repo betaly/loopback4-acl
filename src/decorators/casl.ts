@@ -1,7 +1,7 @@
 import {BindingAddress, BindingSelector, Context, InjectionMetadata, InvocationContext} from '@loopback/context';
 import {inject, Injection, ResolutionSession} from '@loopback/core';
 
-import {CaslBindings} from '../keys';
+import {CaslBindings, CaslTags} from '../keys';
 import {sureRunSubjectHooks} from '../subjects';
 import {isBindingAddress} from '../utils';
 
@@ -45,6 +45,12 @@ export namespace casl {
       async (ctx: Context, injection: Readonly<Injection>, session: ResolutionSession) => {
         await sureRunSubjectHooks(ctx as InvocationContext);
         const key = session.currentBinding?.key ?? CaslBindings.SUBJECT;
+
+        const tagNames = ctx.getBinding(key, {optional: true})?.tagNames;
+        if (tagNames && !tagNames?.includes(CaslTags.SUBJECT)) {
+          throw new Error(`"${key}" is not a subject binding`);
+        }
+
         return ctx.get(key, injection.metadata);
       },
     ) as ParameterDecorator;
