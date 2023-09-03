@@ -1,16 +1,16 @@
-import {AbilityOptionsOf, AnyAbility, createMongoAbility, Subject as CaslSubject} from '@casl/ability';
+import {AbilityOptionsOf, AnyAbility, createMongoAbility, Subject} from '@casl/ability';
 import {BindingScope} from '@loopback/context';
 import {extensionPoint, extensions, Getter, inject} from '@loopback/core';
 import debugFactory from 'debug';
 
 import {DefaultActions} from '../actions';
 import {PERMISSIONS_EXTENSION_POINT_NAME} from '../bindings';
-import {CaslBindings} from '../keys';
+import {AclBindings} from '../keys';
 import {AnyPermissions, UserAbilityBuilder} from '../permissions';
 import {AbilityFactory, AuthUser} from '../types';
 import {toArray} from '../utils';
 
-const debug = debugFactory('casl:ability-service');
+const debug = debugFactory('acl:ability-service');
 
 export type AbilityServiceBuildOptions =
   | AbilityFactory<AnyAbility>
@@ -26,19 +26,19 @@ export const nullConditionsMatcher = () => (): boolean => true;
   scope: BindingScope.SINGLETON,
 })
 export class AbilityService<
-  Role extends string = string,
-  Subject extends CaslSubject = CaslSubject,
-  Actions extends string = DefaultActions,
-  User extends AuthUser<Role, unknown> = AuthUser<Role, unknown>,
+  TRole extends string = string,
+  TSubject extends Subject = Subject,
+  TAction extends string = DefaultActions,
+  TUser extends AuthUser<TRole, unknown> = AuthUser<TRole, unknown>,
 > {
   constructor(
     @extensions()
-    private readonly getAllPermissions: Getter<AnyPermissions<Role, Subject, Actions, User>[]>,
-    @inject.getter(CaslBindings.CURRENT_PERMISSIONS, {optional: true})
-    private readonly getCurrentPermissions: Getter<AnyPermissions<Role, Subject, Actions, User>>,
+    private readonly getAllPermissions: Getter<AnyPermissions<TRole, TSubject, TAction, TUser>[]>,
+    @inject.getter(AclBindings.CURRENT_PERMISSIONS, {optional: true})
+    private readonly getCurrentPermissions: Getter<AnyPermissions<TRole, TSubject, TAction, TUser>>,
   ) {}
 
-  async buildForUser(user: User, options: AbilityServiceBuildOptions = {}): Promise<AnyAbility> {
+  async buildForUser(user: TUser, options: AbilityServiceBuildOptions = {}): Promise<AnyAbility> {
     debug(`Building ability for user ${user.id}`);
     const {
       abilityFactory = createMongoAbility,
@@ -53,7 +53,7 @@ export class AbilityService<
       perms = permissions;
     }
     if (!perms) {
-      debug(`Using permissions from CaslBindings.CURRENT_PERMISSIONS injection`);
+      debug(`Using permissions from AclBindings.CURRENT_PERMISSIONS injection`);
       perms = await this.getCurrentPermissions();
     }
     if (!perms) {
@@ -61,7 +61,7 @@ export class AbilityService<
       perms = await this.getAllPermissions();
     }
 
-    const permissionsToUse = toArray(perms) as AnyPermissions<Role, Subject, Actions, User>[];
+    const permissionsToUse = toArray(perms) as AnyPermissions<TRole, TSubject, TAction, TUser>[];
 
     const ability = new UserAbilityBuilder(user, permissionsToUse, abilityFactory);
 

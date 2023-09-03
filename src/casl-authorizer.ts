@@ -13,13 +13,13 @@ import debugFactory from 'debug';
 import {Actions} from './actions';
 import {Conditions} from './conditions';
 import {getPermissionsMetadata} from './decorators';
-import {CaslBindings} from './keys';
+import {AclBindings} from './keys';
 import {AbilityService} from './services';
 import {sureRunSubjectHooks} from './subjects';
 import {UserResolver} from './types';
 import {toArray} from './utils';
 
-const debug = debugFactory('casl:authorizer');
+const debug = debugFactory('acl:authorizer');
 
 @injectable({
   scope: BindingScope.SINGLETON,
@@ -29,9 +29,9 @@ export class CaslAuthorizer implements Provider<Authorizer> {
   constructor(
     @service(AbilityService)
     private abilityService: AbilityService,
-    @inject(CaslBindings.USER_RESOLVER, {optional: true})
+    @inject(AclBindings.USER_RESOLVER, {optional: true})
     private resolveUser: UserResolver,
-    @inject.getter(CaslBindings.SUPERUSER_ROLE, {optional: true})
+    @inject.getter(AclBindings.SUPERUSER_ROLE, {optional: true})
     private getSuperUserRole?: Getter<string>,
   ) {}
 
@@ -47,7 +47,7 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     const user = await this.resolveUser(invocationContext);
     if (!user) {
       debug(
-        'current user not found. maybe not logged in or forgot to alias real user biding key to CaslBindings.CURRENT_USER in CaslComponent initialization',
+        'current user not found. maybe not logged in or forgot to alias real user biding key to AclBindings.CURRENT_USER in CaslComponent initialization',
       );
       return AuthorizationDecision.ABSTAIN;
     }
@@ -67,17 +67,17 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     const abilities = await this.abilityService.buildForUser(user, {permissions});
     const rules = abilities.rulesFor(act, sub);
 
-    debug('Binding CaslBindings.CONDITIONS to rules for %s %s: %o', act, sub, rules);
-    invocationContext.bind(CaslBindings.CONDITIONS).to(new Conditions(abilities, act, sub));
+    debug('Binding AclBindings.CONDITIONS to rules for %s %s: %o', act, sub, rules);
+    invocationContext.bind(AclBindings.CONDITIONS).to(new Conditions(abilities, act, sub));
 
-    if (!rules.every(rule => rule.conditions) || !invocationContext.isBound(CaslBindings.Auth.SUBJECT_HOOKS)) {
+    if (!rules.every(rule => rule.conditions) || !invocationContext.isBound(AclBindings.Auth.SUBJECT_HOOKS)) {
       debug('authorize "%s" "%s" with class or type', act, sub);
       return decision(abilities.can(act, sub));
     }
 
     await sureRunSubjectHooks(invocationContext);
 
-    const instance = await invocationContext.get(CaslBindings.SUBJECT, {optional: true});
+    const instance = await invocationContext.get(AclBindings.SUBJECT, {optional: true});
 
     if (!instance) {
       debug('authorize "%s" "%s" with class or type', act, sub);

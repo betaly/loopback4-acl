@@ -1,6 +1,6 @@
 import {Client, toJSON} from '@loopback/testlab';
 
-import {CaslBindings} from '../../keys';
+import {AclBindings} from '../../keys';
 import {AuthUser} from '../../types';
 import {TestAuthorizationApplication} from '../fixtures/application';
 import {Todo, TodoController, TodoRepository} from '../fixtures/components/todo';
@@ -12,9 +12,6 @@ const TodoOfTom = {userId: 'tom', title: 'Todo title'};
 const TodoRequests = (client: Client) => buildRequestsFromController(client, TodoController);
 
 describe('Authorization', () => {
-  // const post = new Post({id: 'id', userId: 'tom', title: 'Todo title'});
-  // const user = new User({id: 'tom', name: 'John Doe', roles: []});
-
   let app: TestAuthorizationApplication;
   let client: Client;
   let todoRepo: TodoRepository;
@@ -26,7 +23,7 @@ describe('Authorization', () => {
   beforeEach(async () => {
     currentUser = undefined;
     ({app, client} = await setupApplication({
-      casl: {
+      acl: {
         userResolver: async () => currentUser,
       },
     }));
@@ -108,7 +105,7 @@ describe('Authorization', () => {
     describe('accessed by superuser', () => {
       beforeEach(async () => {
         currentUser = givenUserWithRole(Roles.admin, 'tom');
-        app.bind(CaslBindings.SUPERUSER_ROLE).to(Roles.admin);
+        app.bind(AclBindings.SUPERUSER_ROLE).to(Roles.admin);
       });
 
       afterEach(async () => {
@@ -250,10 +247,10 @@ describe('Authorization', () => {
     });
   });
 
-  describe('@casl.subject', () => {
+  describe('@acl.subject', () => {
     describe('accessed by superuser', () => {
       beforeEach(async () => {
-        app.bind(CaslBindings.SUPERUSER_ROLE).to(Roles.admin);
+        app.bind(AclBindings.SUPERUSER_ROLE).to(Roles.admin);
         currentUser = givenUserWithRole(Roles.admin);
       });
       testInjectSubject();
@@ -291,10 +288,10 @@ describe('Authorization', () => {
     }
   });
 
-  describe('@casl.conditions', () => {
+  describe('@acl.conditions', () => {
     describe('accessed by superuser', () => {
       beforeEach(async () => {
-        app.bind(CaslBindings.SUPERUSER_ROLE).to(Roles.admin);
+        app.bind(AclBindings.SUPERUSER_ROLE).to(Roles.admin);
         currentUser = givenUserWithRole(Roles.admin);
       });
 

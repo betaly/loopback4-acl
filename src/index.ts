@@ -1,6 +1,6 @@
 export * from './actions';
-export * from './authorizer';
 export * from './bindings';
+export * from './casl-authorizer';
 export * from './component';
 export * from './conditions';
 export * from './context';
@@ -9,4 +9,4 @@ export * from './keys';
 export * from './permissions';
 export * from './services';
 export * from './types';
-export * from '@casl/ability';
+export {InferSubjects} from '@casl/ability';

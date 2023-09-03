@@ -7,12 +7,12 @@ import {
 import {Application, Component, CoreBindings, inject, ProviderMap, ServiceOrProviderClass} from '@loopback/core';
 import {SecurityBindings} from '@loopback/security';
 
-import {CaslAuthorizer} from './authorizer';
-import {CaslBindings} from './keys';
+import {CaslAuthorizer} from './casl-authorizer';
+import {AclBindings} from './keys';
 import {AbilityService} from './services';
-import {CaslConfig, UserResolver} from './types';
+import {AclConfig, UserResolver} from './types';
 
-export class CaslComponent implements Component {
+export class AclComponent implements Component {
   /**
    * A map of providers to be bound to the application context
    */
@@ -26,12 +26,12 @@ export class CaslComponent implements Component {
   constructor(
     @inject(CoreBindings.APPLICATION_INSTANCE)
     private readonly app: Application,
-    @inject(CaslBindings.CONFIG, {optional: true})
-    private readonly config?: CaslConfig,
+    @inject(AclBindings.CONFIG, {optional: true})
+    private readonly config?: AclConfig,
   ) {
     const {superuserRole, userResolver} = this.config ?? {};
 
-    if (!app.isBound(CaslBindings.USER_RESOLVER)) {
+    if (!app.isBound(AclBindings.USER_RESOLVER)) {
       let userResolverFn: UserResolver;
       if (typeof userResolver === 'function') {
         userResolverFn = userResolver;
@@ -39,11 +39,11 @@ export class CaslComponent implements Component {
         const userBindingAddress = userResolver ?? SecurityBindings.USER;
         userResolverFn = async ctx => ctx.get(userBindingAddress);
       }
-      app.bind(CaslBindings.USER_RESOLVER).to(userResolverFn);
+      app.bind(AclBindings.USER_RESOLVER).to(userResolverFn);
     }
 
-    if (!app.isBound(CaslBindings.SUPERUSER_ROLE) && superuserRole) {
-      app.bind(CaslBindings.SUPERUSER_ROLE).to(superuserRole);
+    if (!app.isBound(AclBindings.SUPERUSER_ROLE) && superuserRole) {
+      app.bind(AclBindings.SUPERUSER_ROLE).to(superuserRole);
     }
 
     if (!app.isBound(`${CoreBindings.COMPONENTS}.${AuthorizationComponent.name}`)) {
@@ -54,7 +54,7 @@ export class CaslComponent implements Component {
     }
 
     this.providers = {
-      [CaslBindings.AUTHORIZER.key]: CaslAuthorizer,
+      [AclBindings.AUTHORIZER.key]: CaslAuthorizer,
     };
     this.services = [AbilityService];
   }

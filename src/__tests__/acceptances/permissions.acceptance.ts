@@ -4,7 +4,7 @@ import {del, post} from '@loopback/rest';
 import {Client} from '@loopback/testlab';
 
 import {Actions} from '../../actions';
-import {ability, usePermissions} from '../../decorators';
+import {authorise, usePermissions} from '../../decorators';
 import {Permissions} from '../../permissions';
 import {AuthUser} from '../../types';
 import {Todo} from '../fixtures/components/todo';
@@ -36,13 +36,13 @@ describe('Permissions', () => {
       constructor() {}
 
       @post('/articles')
-      @ability('create', 'Article')
+      @authorise('create', 'Article')
       async create() {
         return new Todo({title: 'Todo title', userId: 'tom'});
       }
 
       @del('/articles/{id}')
-      @ability('delete', 'Article')
+      @authorise('delete', 'Article')
       async delete() {
         return true;
       }
@@ -51,7 +51,7 @@ describe('Permissions', () => {
     beforeEach(async () => {
       currentUser = undefined;
       ({app, client} = await setupApplication({
-        casl: {
+        acl: {
           userResolver: async ctx => currentUser,
         },
       }));
@@ -78,13 +78,13 @@ describe('Permissions', () => {
       constructor() {}
 
       @post('/todos')
-      @ability('create', Todo)
+      @authorise('create', Todo)
       async create() {
         return new Todo({title: 'Todo title', userId: 'tom'});
       }
 
       @del('/todos/{id}')
-      @ability('delete', Todo)
+      @authorise('delete', Todo)
       async delete() {
         return true;
       }
@@ -93,7 +93,7 @@ describe('Permissions', () => {
     beforeEach(async () => {
       currentUser = undefined;
       ({app, client} = await setupApplication({
-        casl: {
+        acl: {
           userResolver: async ctx => currentUser,
         },
       }));

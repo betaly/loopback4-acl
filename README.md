@@ -1,19 +1,21 @@
-# loopback4-casl
+# loopback4-acl
 
-> Access control for Loopback 4 with CASL. Inspired by [nest-casl](https://github.com/getjerry/nest-casl)
+> Access control for Loopback 4. Initial implemented with [CASL](https://casl.js.org/v6/en/)
+>
+> Inspired by [nest-casl](https://github.com/getjerry/nest-casl)
 
 ## Installation
 
 npm
 
 ```sh
-npm install --save loopback4-casl
+npm install --save loopback4-acl
 ```
 
 yarn
 
 ```sh
-yarn add loopback4-casl
+yarn add loopback4-acl
 ```
 
 ## Usage
@@ -33,9 +35,9 @@ export enum Roles {
 Mount casl authorization component:
 
 ```ts
-import {CaslComponent} from 'loopback4-casl';
+import {CaslComponent} from 'loopback4-acl';
 import {AuthenticationBindings} from '@bleco/authentication';
-import {CaslBindings} from './keys';
+import {AclBindings} from './keys';
 import {Roles} from './roles';
 
 export class MyApplication extends BootMixin(ServiceMixin(RepositoryMixin(RestApplication))) {
@@ -43,7 +45,7 @@ export class MyApplication extends BootMixin(ServiceMixin(RepositoryMixin(RestAp
     super(options);
 
     // Config and mount casl authorization component
-    this.bind(CaslBindings.CONFIG).to({
+    this.bind(AclBindings.CONFIG).to({
       superUserRoles: Roles.admin,
       userResolver: async (ctx: Context) => ctx.get(AuthenticationBindings.CURRENT_USER),
       // or
@@ -62,7 +64,7 @@ export class MyApplication extends BootMixin(ServiceMixin(RepositoryMixin(RestAp
 
 ## Permissions definition
 
-`loopback4-casl` comes with a set of default actions, aligned with
+`loopback4-acl` comes with a set of default actions, aligned with
 [Loopback4 Query](https://github.com/betaly/loopback4-query). `manage` has a special meaning of any action.
 DefaultActions aliased to `Actions` for convenience.
 
@@ -88,7 +90,7 @@ Permissions defined per module. `everyone` permissions applied to every user, it
 ```ts
 // permissions.ts
 
-import {Permissions, Actions} from 'loopback4-casl';
+import {Permissions, Actions} from 'loopback4-acl';
 import {InferSubjects} from '@casl/ability';
 
 import {Roles} from './roles';
@@ -152,7 +154,7 @@ at least exist, if no authenticated user obtained from user will be denied.
 import {SecurityBindings} from '@loopback/security';
 import {inject} from '@loopback/context';
 import {post, requestBody} from '@loopback/rest';
-import {ability} from '@loopback4-casl';
+import {authorise} from '@loopback4-acl';
 
 export class TodoController {
   constructor(
@@ -160,7 +162,7 @@ export class TodoController {
     public todoRepository: TodoRepository,
   ) {}
 
-  @ability(Actions.create, Todo)
+  @authorise(Actions.create, Todo)
   @post('/todos', {
     responses: {
       '200': {
@@ -189,14 +191,14 @@ export class TodoController {
 
 ### Subject resolver
 
-For permissions with conditions we need to provide subject resolver in `@ability` decorator. It can be a provider or a
+For permissions with conditions we need to provide subject resolver in `@authorise` decorator. It can be a provider or a
 resolve function or a tuple.
 
 ```ts
 // post.hook.ts
 import {Provider} from '@loopback/context';
 import {Request} from '@loopback/rest';
-import {AuthContext} from 'loopback4-casl';
+import {AuthContext} from 'loopback4-acl';
 
 import {TodoRepository} from './repositories/post.repository';
 import {Todo} from './model/post.model';
@@ -217,12 +219,12 @@ export class TodoResolver implements Provider<SubjectResolver<Todo>> {
 }
 ```
 
-passed as third argument of `@ability`
+passed as third argument of `@authorise`
 
 ```ts
 export class TodoController {
   // ...
-  @ability(Actions.update, Todo, TodoResolver)
+  @authorise(Actions.update, Todo, TodoResolver)
   @patch('/todos/{id}', {
     responses: {
       '204': {
@@ -255,7 +257,7 @@ prototyping or single usage use cases.
 ```ts
 export class TodoController {
   // ...
-  @ability<Todo>(Actions.update, Todo, [
+  @authorise<Todo>(Actions.update, Todo, [
     TodoRepository,
     (repo: TodoRepository, {params}) => repo.findById(parseInt(params.id)),
   ])
@@ -279,15 +281,15 @@ export class TodoController {
 }
 ```
 
-### `@casl.subject` decorator
+### `@acl.subject` decorator
 
-`casl.subject` decorator provides access to lazy loaded subject, obtained from [subject resolver](#subject-resolver) and
+`@acl.subject` decorator provides access to lazy loaded subject, obtained from [subject resolver](#subject-resolver) and
 bound to invocation context.
 
 ```ts
 export class TodoController {
   // ...
-  @ability(Actions.update, Todo, TodoResolver)
+  @authorise(Actions.update, Todo, TodoResolver)
   @patch('/todos/{id}', {
     responses: {
       '204': {
@@ -300,7 +302,7 @@ export class TodoController {
     id: number,
     @requestBody()
     todo: Todo,
-    @casl.subject()
+    @acl.subject()
     subject: Todo,
   ) {
     // subject === await todoRepo.findById(id)
@@ -316,7 +318,7 @@ Subject resolver is not required.
 
 ```ts
 export class TodoController {
-  @ability(Actions.update, Todo)
+  @authorise(Actions.update, Todo)
   @patch('/todos/{id}', {
     responses: {
       '204': {
@@ -329,7 +331,7 @@ export class TodoController {
     id: number,
     @requestBody()
     todo: Todo,
-    @casl.conditions()
+    @acl.conditions()
     conditions: Conditions,
   ) {
     conditions.toSql(); // ['"userId" = $1', ['userId'], []]
@@ -340,7 +342,9 @@ export class TodoController {
 
 ### Testing
 
-Check [tests](https://github.com/betaly/loopback4-casl/tree/master/src/__tests__) for application testing example.
+Check
+[authorization_tests](https://github.com/betaly/loopback4-acl/tree/master/src/__tests__/acceptances/authorization.acceptance.ts)
+for application testing example.
 
 ## Advanced usage
 

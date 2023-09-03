@@ -1,3 +1,3 @@
-export * from './ability';
-export * from './casl';
+export * from './acl';
+export * from './authorise';
 export * from './use-permissions';

@@ -6,7 +6,7 @@ import {OAI3Keys} from '@loopback/openapi-v3/dist/keys';
 import {RestEndpoint} from '@loopback/rest';
 import {Client, createRestAppClient, givenHttpServerConfig, supertest} from '@loopback/testlab';
 
-import {AnyClass, CaslConfig} from '../types';
+import {AclConfig, AnyClass} from '../types';
 import {TestAuthorizationApplication} from './fixtures/application';
 import {Roles} from './fixtures/roles';
 
@@ -15,7 +15,7 @@ export interface AppWithClient {
   client: Client;
 }
 
-export async function setupApplication(config?: ApplicationConfig & {casl?: CaslConfig}): Promise<AppWithClient> {
+export async function setupApplication(config?: ApplicationConfig & {acl?: AclConfig}): Promise<AppWithClient> {
   const restConfig = givenHttpServerConfig({
     // Customize the server configuration here.
     // Empty values (undefined, '') will be ignored by the helper.

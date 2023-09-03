@@ -1,34 +1,38 @@
-import {authorize} from '@loopback/authorization';
+import {authorize as lbAuthorize} from '@loopback/authorization';
 
 import {authorizerForSubjectResolvers} from '../subjects';
 import {AnyClass, AnyObject, SubjectResolver} from '../types';
 
-export type ClassOrMethodDecorator = MethodDecorator & ClassDecorator;
+type ClassOrMethodDecorator = MethodDecorator & ClassDecorator;
 
-export interface AbilityRule<Subject = AnyObject> {
+export interface AuthorisationRule<Subject = AnyObject> {
   action: string;
   subject: string | AnyClass<Subject>;
   subjectResolver?: SubjectResolver<Subject> | Record<string, SubjectResolver<Subject>>;
 }
 
-export function ability<Subject = AnyObject>(rule: AbilityRule<Subject>): ClassOrMethodDecorator;
-export function ability<Subject = AnyObject>(
+/**
+ * Authorize a request using the given authorization rule
+ * @param rule
+ */
+export function authorise<Subject = AnyObject>(rule: AuthorisationRule<Subject>): ClassOrMethodDecorator;
+export function authorise<Subject = AnyObject>(
   action: string,
   subject: string | AnyClass<Subject>,
   subjectResolver?: SubjectResolver<Subject> | Record<string, SubjectResolver<Subject>>,
 ): ClassOrMethodDecorator;
-export function ability<Subject = AnyObject>(
-  ruleOrAction: AbilityRule<Subject> | string,
+export function authorise<Subject = AnyObject>(
+  ruleOrAction: AuthorisationRule<Subject> | string,
   subject?: string | AnyClass<Subject>,
   subjectResolver?: SubjectResolver<Subject> | Record<string, SubjectResolver<Subject>>,
 ) {
   const rule = (
     typeof ruleOrAction === 'string' ? {action: ruleOrAction, subject, subjectResolver: subjectResolver} : ruleOrAction
-  ) as AbilityRule<Subject>;
+  ) as AuthorisationRule<Subject>;
 
   // const sub = typeof options.subject === 'string' ? options.subject : options.subject.name;
   // const act = options.action;
-  return authorize({
+  return lbAuthorize({
     resource: rule.subject as string,
     scopes: [rule.action],
     voters: rule.subjectResolver ? [authorizerForSubjectResolvers(rule.subjectResolver)] : [],

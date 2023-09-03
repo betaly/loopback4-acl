@@ -4,7 +4,7 @@ import {BErrors} from 'berrors';
 
 import {Actions} from '../../../../../actions';
 import {Conditions, SqlConditions} from '../../../../../conditions';
-import {ability, casl, usePermissions} from '../../../../../decorators';
+import {acl, authorise, usePermissions} from '../../../../../decorators';
 import {Todo} from '../models';
 import {permissions} from '../permissions';
 import {TodoResolver} from '../providers/todo.resolver';
@@ -33,7 +33,7 @@ export class TodoController {
     public todoRepository: TodoRepository,
   ) {}
 
-  @ability(Actions.create, Todo)
+  @authorise(Actions.create, Todo)
   @post('/todos', {
     responses: {
       '200': {
@@ -58,7 +58,7 @@ export class TodoController {
     return this.todoRepository.create(todo);
   }
 
-  @ability(Actions.read, Todo)
+  @authorise(Actions.read, Todo)
   @get('/todos/{id}', {
     responses: {
       '200': {
@@ -78,7 +78,7 @@ export class TodoController {
     return this.todoRepository.findById(id, filter);
   }
 
-  @ability(Actions.read, Todo)
+  @authorise(Actions.read, Todo)
   @get('/todos', {
     responses: {
       '200': {
@@ -98,7 +98,7 @@ export class TodoController {
     return this.todoRepository.find(filter);
   }
 
-  @ability(Actions.delete, Todo)
+  @authorise(Actions.delete, Todo)
   @del('/todos/{id}', {
     responses: {
       '204': {
@@ -110,7 +110,7 @@ export class TodoController {
     await this.todoRepository.deleteById(id);
   }
 
-  @ability(Actions.read, Todo)
+  @authorise(Actions.read, Todo)
   @get('/todos/count', {
     responses: {
       '200': {
@@ -123,7 +123,7 @@ export class TodoController {
     return this.todoRepository.count(where);
   }
 
-  @ability(Actions.update, Todo)
+  @authorise(Actions.update, Todo)
   @patch('/todos', {
     responses: {
       '200': {
@@ -146,7 +146,7 @@ export class TodoController {
     return this.todoRepository.updateAll(todo, where);
   }
 
-  @ability(Actions.update, Todo)
+  @authorise(Actions.update, Todo)
   @put('/todos/{id}', {
     responses: {
       '204': {
@@ -158,7 +158,7 @@ export class TodoController {
     await this.todoRepository.replaceById(id, todo);
   }
 
-  @ability(Actions.update, Todo, TodoResolver)
+  @authorise(Actions.update, Todo, TodoResolver)
   @patch('/todos/{id}', UpdateVerbSpec)
   async updateById(
     @param.path.number('id') id: number,
@@ -168,7 +168,7 @@ export class TodoController {
     await this.todoRepository.updateById(id, todo);
   }
 
-  @ability(Actions.update, Todo, [
+  @authorise(Actions.update, Todo, [
     TodoRepository,
     (todoRepository: TodoRepository, {params}) => todoRepository.findById(parseInt(params.id)),
   ])
@@ -181,7 +181,7 @@ export class TodoController {
     await this.todoRepository.updateById(id, todo);
   }
 
-  @ability(Actions.update, Todo)
+  @authorise(Actions.update, Todo)
   @patch('/todos/updateByIdNoResolver/{id}', UpdateVerbSpec)
   async updateByIdNoResolver(
     @param.path.number('id') id: number,
@@ -191,13 +191,13 @@ export class TodoController {
     await this.todoRepository.updateById(id, todo);
   }
 
-  @ability(Actions.update, Todo, TodoResolver)
+  @authorise(Actions.update, Todo, TodoResolver)
   @patch('/todos/updateByIdSubjectParam/{id}', UpdateVerbSpec)
   async updateByIdSubjectParam(
     @param.path.number('id') id: number,
     @requestBody(UpdateRequestBodySpec)
     todo: Todo,
-    @casl.subject()
+    @acl.subject()
     subject: Todo,
   ): Promise<Todo> {
     if (!subject) {
@@ -207,7 +207,7 @@ export class TodoController {
     return this.todoRepository.findById(id);
   }
 
-  @ability(Actions.update, Todo, [
+  @authorise(Actions.update, Todo, [
     TodoRepository,
     (todoRepository: TodoRepository, {params}) => todoRepository.findById(parseInt(params.id)),
   ])
@@ -216,7 +216,7 @@ export class TodoController {
     @param.path.number('id') id: number,
     @requestBody(UpdateRequestBodySpec)
     todo: Todo,
-    @casl.subject()
+    @acl.subject()
     subject: Todo,
   ): Promise<Todo> {
     if (!subject) {
@@ -227,13 +227,13 @@ export class TodoController {
   }
 
   // TODO - implement conditions functions
-  @ability(Actions.update, Todo, TodoResolver)
+  @authorise(Actions.update, Todo, TodoResolver)
   @patch('/todos/updateByIdConditionsParam/{id}')
   async updateByIdConditionsParam(
     @param.path.number('id') id: number,
     @requestBody(UpdateRequestBodySpec)
     todo: Todo,
-    @casl.conditions()
+    @acl.conditions()
     conditions?: Conditions,
   ): Promise<SqlConditions | undefined> {
     await this.todoRepository.updateById(id, todo);
@@ -242,13 +242,13 @@ export class TodoController {
     }
   }
 
-  @ability(Actions.update, Todo)
+  @authorise(Actions.update, Todo)
   @patch('/todos/updateByIdConditionsParamNoResolver/{id}')
   async updateByIdConditionsParamNoResolver(
     @param.path.number('id') id: number,
     @requestBody(UpdateRequestBodySpec)
     todo: Todo,
-    @casl.conditions()
+    @acl.conditions()
     conditions?: Conditions,
   ): Promise<SqlConditions | undefined> {
     await this.todoRepository.updateById(id, todo);

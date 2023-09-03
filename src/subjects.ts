@@ -4,16 +4,16 @@ import debugFactory from 'debug';
 import {uid} from 'uid';
 
 import {AuthContext} from './context';
-import {CaslBindings, CaslTags} from './keys';
+import {AclBindings, AclTags} from './keys';
 import {AnyClass, AnyObject, SubjectResolveFn, SubjectResolver} from './types';
 import {isBindingAddress, isSubjectResolver} from './utils';
 
-const debug = debugFactory('casl:subjects');
+const debug = debugFactory('acl:subjects');
 
 export function authorizerForSubjectResolvers<Subject = AnyObject>(
   resolvers: SubjectResolver<Subject> | Record<string, SubjectResolver<Subject>>,
 ): Authorizer {
-  const resolversToUse = isSubjectResolver(resolvers) ? {[CaslBindings.SUBJECT.key]: resolvers} : resolvers;
+  const resolversToUse = isSubjectResolver(resolvers) ? {[AclBindings.SUBJECT.key]: resolvers} : resolvers;
 
   return async ({invocationContext}) => {
     const hooks = sureSubjectHooks(invocationContext);
@@ -51,21 +51,21 @@ function toAuthHooks<Subject = AnyObject>(resolvers: Record<string, SubjectResol
       invocationContext
         .bind(key)
         .to(subject as Subject)
-        .tag(CaslTags.SUBJECT);
+        .tag(AclTags.SUBJECT);
 
-      // bind first subject to CaslBindings.SUBJECT if not bound yet
-      if (!invocationContext.contains(CaslBindings.SUBJECT)) {
-        invocationContext.bind(CaslBindings.SUBJECT).toAlias(key);
+      // bind first subject to AclBindings.SUBJECT if not bound yet
+      if (!invocationContext.contains(AclBindings.SUBJECT)) {
+        invocationContext.bind(AclBindings.SUBJECT).toAlias(key);
       }
     }
   };
 }
 
 function sureSubjectHooks(context: Context) {
-  if (!context.contains(CaslBindings.Auth.SUBJECT_HOOKS)) {
-    context.bind(CaslBindings.Auth.SUBJECT_HOOKS).to([]);
+  if (!context.contains(AclBindings.Auth.SUBJECT_HOOKS)) {
+    context.bind(AclBindings.Auth.SUBJECT_HOOKS).to([]);
   }
-  return context.getSync(CaslBindings.Auth.SUBJECT_HOOKS);
+  return context.getSync(AclBindings.Auth.SUBJECT_HOOKS);
 }
 
 function possibleServiceKeys(serviceTypeOrKey: AnyClass) {
@@ -99,9 +99,9 @@ async function tryToResolveService(context: Context, serviceTypeOrKey: AnyClass 
 
 export async function sureRunSubjectHooks(invocationContext: InvocationContext) {
   debug('sure subject hooks has been run');
-  if (!invocationContext.isBound(CaslBindings.SUBJECT) && invocationContext.isBound(CaslBindings.Auth.SUBJECT_HOOKS)) {
+  if (!invocationContext.isBound(AclBindings.SUBJECT) && invocationContext.isBound(AclBindings.Auth.SUBJECT_HOOKS)) {
     // run subject hooks
-    const hooks = await invocationContext.get(CaslBindings.Auth.SUBJECT_HOOKS);
+    const hooks = await invocationContext.get(AclBindings.Auth.SUBJECT_HOOKS);
     if (!hooks?.length) {
       return;
     }

@@ -1,5 +1,5 @@
 import {Actions} from '../../actions';
-import {CaslBindings} from '../../keys';
+import {AclBindings} from '../../keys';
 import {Permissions} from '../../permissions';
 import {AbilityService, nullConditionsMatcher} from '../../services';
 import {TestAuthorizationApplication} from '../fixtures/application';
@@ -60,28 +60,28 @@ describe('AbilityService', () => {
   });
 
   it("everyone's rules applied to customer", async () => {
-    app.bind(CaslBindings.CURRENT_PERMISSIONS).to(permissions);
+    app.bind(AclBindings.CURRENT_PERMISSIONS).to(permissions);
     const user = {id: 'userId', roles: [Roles.customer]};
     const ability = await abilityService.buildForUser(user);
     expect(ability.can(Actions.read, Todo)).toBe(true);
   });
 
   it('every is an alias for everyone', async () => {
-    app.bind(CaslBindings.CURRENT_PERMISSIONS).to(permissionsEveryAlias);
+    app.bind(AclBindings.CURRENT_PERMISSIONS).to(permissionsEveryAlias);
     const user = {id: 'userId', roles: [Roles.customer]};
     const ability = await abilityService.buildForUser(user);
     expect(ability.can(Actions.read, Todo)).toBe(true);
   });
 
   it('works without everyone role', async () => {
-    app.bind(CaslBindings.CURRENT_PERMISSIONS).to(permissionsNoEveryone);
+    app.bind(AclBindings.CURRENT_PERMISSIONS).to(permissionsNoEveryone);
     const user = {id: 'userId', roles: [Roles.customer]};
     const ability = await abilityService.buildForUser(user);
     expect(ability.can(Actions.read, Todo)).toBe(false);
   });
 
   it('operator inherits rules from user', async () => {
-    app.bind(CaslBindings.CURRENT_PERMISSIONS).to(permissions);
+    app.bind(AclBindings.CURRENT_PERMISSIONS).to(permissions);
     const user = {id: 'userId', roles: [Roles.operator]};
     const ability = await abilityService.buildForUser(user);
     expect(ability.can(Actions.read, Todo)).toBe(true);

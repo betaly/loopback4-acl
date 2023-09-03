@@ -1,20 +1,13 @@
 import {BindingAddress, BindingSelector, Context, InjectionMetadata, InvocationContext} from '@loopback/context';
 import {inject, Injection, ResolutionSession} from '@loopback/core';
 
-import {CaslBindings, CaslTags} from '../keys';
+import {AclBindings, AclTags} from '../keys';
 import {sureRunSubjectHooks} from '../subjects';
 import {isBindingAddress} from '../utils';
+import {authorise as authorise_} from './authorise';
 
-export namespace casl {
-  /**
-   * Injects the conditions object from the current authorization flow.
-   *
-   * The value could be undefined if the conditions object is not available (e.g superuser authorizing).
-   */
-  export const conditions = function injectConditions() {
-    return inject(CaslBindings.CONDITIONS, {decorator: '@casl.conditions', optional: true});
-  };
-
+export namespace acl {
+  export const authorise = authorise_;
   /**
    * Injects the subject object with bindingAddress from the subject resolver. undefined if no subject resolver is provided.
    *
@@ -34,20 +27,20 @@ export namespace casl {
   ): ParameterDecorator {
     let bindingAddress: BindingSelector;
     if (!isBindingAddress(bindingAddressOrMetadata)) {
-      bindingAddress = CaslBindings.SUBJECT;
+      bindingAddress = AclBindings.SUBJECT;
       metadata = bindingAddressOrMetadata;
     } else {
       bindingAddress = bindingAddressOrMetadata;
     }
     return inject(
       bindingAddress,
-      {decorator: '@casl.subject', ...metadata},
+      {decorator: '@acl.subject', ...metadata},
       async (ctx: Context, injection: Readonly<Injection>, session: ResolutionSession) => {
         await sureRunSubjectHooks(ctx as InvocationContext);
-        const key = session.currentBinding?.key ?? CaslBindings.SUBJECT;
+        const key = session.currentBinding?.key ?? AclBindings.SUBJECT;
 
         const tagNames = ctx.getBinding(key, {optional: true})?.tagNames;
-        if (tagNames && !tagNames?.includes(CaslTags.SUBJECT)) {
+        if (tagNames && !tagNames?.includes(AclTags.SUBJECT)) {
           throw new Error(`"${key}" is not a subject binding`);
         }
 
@@ -55,4 +48,13 @@ export namespace casl {
       },
     ) as ParameterDecorator;
   }
+
+  /**
+   * Injects the conditions object from the current authorization flow.
+   *
+   * The value could be undefined if the conditions object is not available (e.g superuser authorizing).
+   */
+  export const conditions = function injectConditions() {
+    return inject(AclBindings.CONDITIONS, {decorator: '@acl.conditions', optional: true});
+  };
 }

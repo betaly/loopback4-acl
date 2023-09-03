@@ -5,8 +5,8 @@ import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 
-import {CaslComponent} from '../../component';
-import {CaslBindings} from '../../keys';
+import {AclComponent} from '../../component';
+import {AclBindings} from '../../keys';
 import {TodoComponent} from './components/todo/component';
 import {UserComponent} from './components/user/component';
 
@@ -14,8 +14,8 @@ export class TestAuthorizationApplication extends BootMixin(RepositoryMixin(Rest
   constructor(config: ApplicationConfig) {
     super(config);
     this.projectRoot = __dirname;
-    this.bind(CaslBindings.CONFIG).to(config.casl);
-    this.component(CaslComponent);
+    this.bind(AclBindings.CONFIG).to(config.acl);
+    this.component(AclComponent);
     this.component(UserComponent);
     this.component(TodoComponent);
   }

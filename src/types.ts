@@ -23,7 +23,7 @@ export interface AuthUser<ROLE = string, ID = string> {
 
 export type UserResolver<User extends AuthUser = AuthUser> = (context: Context) => Promise<User | undefined>;
 
-export interface CaslConfig {
+export interface AclConfig {
   userResolver?: BindingAddress<AuthUser> | UserResolver;
   superuserRole?: string;
 }

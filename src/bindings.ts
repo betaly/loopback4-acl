@@ -8,7 +8,7 @@ export const PERMISSIONS_NAMESPACE = 'permissions';
 /**
  * Name/id of the permissions extension point
  */
-export const PERMISSIONS_EXTENSION_POINT_NAME = 'casl.permissions';
+export const PERMISSIONS_EXTENSION_POINT_NAME = 'acl-permissions';
 
 /**
  * A binding template for permissions extensions
