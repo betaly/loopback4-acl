@@ -5,6 +5,7 @@ import {BErrors} from 'berrors';
 import {Actions} from '../../../../../actions';
 import {Conditions, SqlConditions} from '../../../../../conditions';
 import {acl, authorise, usePermissions} from '../../../../../decorators';
+import {Able} from '../../../../../types';
 import {Todo} from '../models';
 import {permissions} from '../permissions';
 import {TodoResolver} from '../providers/todo.resolver';
@@ -255,5 +256,24 @@ export class TodoController {
     if (conditions) {
       return conditions.toSql();
     }
+  }
+
+  @authorise(Actions.update, Todo)
+  @patch('/todos/updateByIdAbleParam/{id}')
+  async updateByIdAbleParam(
+    @param.path.number('id') id: number,
+    @requestBody(UpdateRequestBodySpec)
+    todo: Todo,
+    @acl.able()
+    able?: Able,
+  ) {
+    if (!able) {
+      throw new BErrors.Forbidden(`Not able to update todo ${id}`);
+    }
+    const result = able.can(Actions.update, Todo);
+    return {
+      type: able.constructor.name,
+      result,
+    };
   }
 }

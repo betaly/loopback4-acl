@@ -10,6 +10,7 @@ import {BindingScope, injectable, Provider} from '@loopback/context';
 import {Getter, inject, service} from '@loopback/core';
 import debugFactory from 'debug';
 
+import {SuperUserAble} from './ables';
 import {Actions} from './actions';
 import {Conditions} from './conditions';
 import {getPermissionsMetadata} from './decorators';
@@ -57,6 +58,8 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     const superuserRole = await this.getSuperUserRole?.();
     if (superuserRole && roles.includes(superuserRole)) {
       debug('superuser access granted');
+      debug('Binding AclBindings.ABLE to superuser "able" of %s', user.name);
+      invocationContext.bind(AclBindings.ABLE).to(new SuperUserAble());
       return AuthorizationDecision.ALLOW;
     }
 
@@ -64,15 +67,17 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     const act = metadata.scopes?.[0] ?? Actions.execute;
 
     const permissions = getPermissionsMetadata(invocationContext.target, invocationContext.methodName);
-    const abilities = await this.abilityService.buildForUser(user, {permissions});
-    const rules = abilities.rulesFor(act, sub);
+    const ability = await this.abilityService.buildForUser(user, {permissions});
+    debug('Binding AclBindings.ABLE to ability of "%s" with roles [%s]', user.name, roles.join(','));
+    invocationContext.bind(AclBindings.ABLE).to(ability);
 
+    const rules = ability.rulesFor(act, sub);
     debug('Binding AclBindings.CONDITIONS to rules for %s %s: %o', act, sub, rules);
-    invocationContext.bind(AclBindings.CONDITIONS).to(new Conditions(abilities, act, sub));
+    invocationContext.bind(AclBindings.CONDITIONS).to(new Conditions(ability, act, sub));
 
     if (!rules.every(rule => rule.conditions) || !invocationContext.isBound(AclBindings.Auth.SUBJECT_HOOKS)) {
       debug('authorize "%s" "%s" with class or type', act, sub);
-      return decision(abilities.can(act, sub));
+      return decision(ability.can(act, sub));
     }
 
     await sureRunSubjectHooks(invocationContext);
@@ -81,11 +86,11 @@ export class CaslAuthorizer implements Provider<Authorizer> {
 
     if (!instance) {
       debug('authorize "%s" "%s" with class or type', act, sub);
-      return decision(abilities.can(act, sub));
+      return decision(ability.can(act, sub));
     }
 
     debug('authorize "%s" "%s" with instance', act, sub);
-    return decision(abilities.can(act, subject(sub, instance)));
+    return decision(ability.can(act, subject(sub, instance)));
   }
 }
 

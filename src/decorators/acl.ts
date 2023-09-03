@@ -8,6 +8,14 @@ import {authorise as authorise_} from './authorise';
 
 export namespace acl {
   export const authorise = authorise_;
+
+  /**
+   * Injects the able object from the current authorization flow.
+   */
+  export const able = function injectAble() {
+    return inject(AclBindings.ABLE, {decorator: '@acl.able'});
+  };
+
   /**
    * Injects the subject object with bindingAddress from the subject resolver. undefined if no subject resolver is provided.
    *

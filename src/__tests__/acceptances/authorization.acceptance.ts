@@ -335,6 +335,49 @@ describe('Authorization', () => {
     });
   });
 
+  describe('@acl.able', () => {
+    describe('accessed by superuser', () => {
+      beforeEach(async () => {
+        app.bind(AclBindings.SUPERUSER_ROLE).to(Roles.admin);
+        currentUser = givenUserWithRole(Roles.admin);
+      });
+
+      it('able param', async () => {
+        const data = toJSON(givenTodo({title: 'wake up'}));
+        return requests
+          .updateByIdAbleParam({id: persistedTodo.id})
+          .send(data)
+          .expect(200)
+          .expect(res => {
+            expect(res.body).toEqual({
+              type: 'SuperUserAble',
+              result: true,
+            });
+          });
+      });
+    });
+
+    describe('accessed by customer', () => {
+      beforeEach(async () => {
+        currentUser = givenUserWithRole(Roles.customer);
+      });
+
+      it('able param', async () => {
+        const data = toJSON(givenTodo({title: 'wake up'}));
+        return requests
+          .updateByIdAbleParam({id: persistedTodo.id})
+          .send(data)
+          .expect(200)
+          .expect(res => {
+            expect(res.body).toEqual({
+              type: 'PureAbility',
+              result: true,
+            });
+          });
+      });
+    });
+  });
+
   async function givenTodoRepository() {
     todoRepo = await app.getRepository(TodoRepository);
   }

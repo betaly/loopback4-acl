@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {AnyAbility} from '@casl/ability';
+import {Abilities, AbilityTuple, AnyAbility, CanParameters} from '@casl/ability';
 import {BindingAddress, Context, Provider} from '@loopback/context';
 import {Constructor} from '@loopback/core';
 
@@ -11,12 +11,18 @@ export declare type AnyClass<R = any> = new (...args: any[]) => R;
 export type AnyRecord = Record<PropertyKey, any>;
 export type AnyObject = Record<PropertyKey, unknown>;
 
+export interface Able<A extends Abilities = AbilityTuple> {
+  can(...args: CanParameters<A>): boolean;
+  cannot(...args: CanParameters<A>): boolean;
+}
+
 export type AbilityFactory<T extends AnyAbility> = AnyClass<T> | ((rules?: any[], options?: any) => T);
 
 export type PermissionsMetadata = Permissions<any>[];
 
 export interface AuthUser<ROLE = string, ID = string> {
   id: ID;
+  name?: string;
   role?: ROLE;
   roles?: ROLE[];
 }
