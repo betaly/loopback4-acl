@@ -23,7 +23,7 @@
   },
   "scripts": {
     "prerelease": "yarn && yarn run build:full && cross-env CI=1 yarn run test",
-    "release": "yarn prerelease && release-it",
+    "release": "yarn prerelease && release-it --npm.timeout=100",
     "build": "nb-tsc -b",
     "build:full": "yarn install && yarn run clean && yarn run build",
     "lint": "yarn run prettier:check && yarn run eslint",
