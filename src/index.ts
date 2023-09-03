@@ -1,3 +1,4 @@
+export * from './ability-builder';
 export * from './ables';
 export * from './actions';
 export * from './bindings';

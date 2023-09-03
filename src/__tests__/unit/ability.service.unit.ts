@@ -1,7 +1,7 @@
 import {Actions} from '../../actions';
 import {AclBindings} from '../../keys';
 import {Permissions} from '../../permissions';
-import {AbilityService, nullConditionsMatcher} from '../../services';
+import {AbilityService} from '../../services';
 import {TestAuthorizationApplication} from '../fixtures/application';
 import {Todo} from '../fixtures/components/todo';
 import {Roles} from '../fixtures/roles';
@@ -88,9 +88,5 @@ describe('AbilityService', () => {
     expect(ability.can(Actions.create, Todo)).toBe(true);
     expect(ability.can(Actions.update, Todo)).toBe(true);
     expect(ability.can(Actions.delete, Todo)).toBe(false);
-  });
-
-  it('null conditions matcher always true', () => {
-    expect(nullConditionsMatcher()()).toBeTruthy();
   });
 });

@@ -1,26 +1,20 @@
-import {AbilityOptionsOf, AnyAbility, createMongoAbility, Subject} from '@casl/ability';
+import {AnyAbility, Subject} from '@casl/ability';
 import {BindingScope} from '@loopback/context';
 import {extensionPoint, extensions, Getter, inject} from '@loopback/core';
 import debugFactory from 'debug';
 
+import {AbilityBuildOptions, buildAbilityForUser} from '../ability-builder';
 import {DefaultActions} from '../actions';
 import {PERMISSIONS_EXTENSION_POINT_NAME} from '../bindings';
 import {AclBindings} from '../keys';
-import {AnyPermissions, UserAbilityBuilder} from '../permissions';
-import {AbilityFactory, AuthUser} from '../types';
-import {toArray} from '../utils';
+import {AnyPermissions} from '../permissions';
+import {AbilityFactory, AuthUser, SingleOrArray} from '../types';
 
 const debug = debugFactory('acl:ability-service');
 
-export type AbilityServiceBuildOptions =
-  | AbilityFactory<AnyAbility>
-  | ({
-      abilityFactory?: AbilityFactory<AnyAbility>;
-      skipConditions?: boolean;
-      permissions?: AnyPermissions | AnyPermissions[];
-    } & AbilityOptionsOf<AnyAbility>);
-
-export const nullConditionsMatcher = () => (): boolean => true;
+export interface AbilityServiceBuildOptions<T extends AnyAbility> extends AbilityBuildOptions<T> {
+  permissions?: SingleOrArray<AnyPermissions>;
+}
 
 @extensionPoint(PERMISSIONS_EXTENSION_POINT_NAME, {
   scope: BindingScope.SINGLETON,
@@ -38,48 +32,23 @@ export class AbilityService<
     private readonly getCurrentPermissions: Getter<AnyPermissions<TRole, TSubject, TAction, TUser>>,
   ) {}
 
-  async buildForUser(user: TUser, options: AbilityServiceBuildOptions = {}): Promise<AnyAbility> {
-    debug(`Building ability for user ${user.id}`);
-    const {
-      abilityFactory = createMongoAbility,
-      skipConditions = false,
-      permissions = undefined,
-      ...abilityOptions
-    } = typeof options === 'function' ? {abilityFactory: options} : options;
-
-    let perms;
-    if (permissions) {
+  async buildForUser(
+    user: TUser,
+    options: AbilityFactory<AnyAbility> | AbilityServiceBuildOptions<AnyAbility> = {},
+  ): Promise<AnyAbility> {
+    let permissions;
+    if (typeof options !== 'function' && options.permissions) {
       debug(`Using permissions in options passed`);
-      perms = permissions;
+      permissions = options.permissions;
     }
-    if (!perms) {
+    if (!permissions) {
       debug(`Using permissions from AclBindings.CURRENT_PERMISSIONS injection`);
-      perms = await this.getCurrentPermissions();
+      permissions = await this.getCurrentPermissions();
     }
-    if (!perms) {
+    if (!permissions) {
       debug(`Using permissions from all permissions extensions`);
-      perms = await this.getAllPermissions();
+      permissions = await this.getAllPermissions();
     }
-
-    const permissionsToUse = toArray(perms) as AnyPermissions<TRole, TSubject, TAction, TUser>[];
-
-    const ability = new UserAbilityBuilder(user, permissionsToUse, abilityFactory);
-
-    debug(`Applying everyone and every role permissions`);
-    ability.permissionsFor('everyone');
-    ability.permissionsFor('every');
-
-    const roles = toArray(user.roles ?? user.role);
-
-    if (roles.length > 0) {
-      debug(`Applying user roles [${roles.join(', ')}] permissions`);
-      roles.forEach(role => ability.permissionsFor(role));
-    }
-
-    if (skipConditions) {
-      debug(`Skipping conditions matcher`);
-      return ability.build({...abilityOptions, conditionsMatcher: nullConditionsMatcher});
-    }
-    return ability.build(abilityOptions);
+    return buildAbilityForUser(user, permissions, options);
   }
 }

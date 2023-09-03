@@ -5,11 +5,13 @@ import {BindingAddress, Context, Provider} from '@loopback/context';
 import {Constructor} from '@loopback/core';
 
 import {AuthContext} from './context';
-import {Permissions} from './permissions';
+import {AnyPermissions} from './permissions';
 
 export declare type AnyClass<R = any> = new (...args: any[]) => R;
 export type AnyRecord = Record<PropertyKey, any>;
 export type AnyObject = Record<PropertyKey, unknown>;
+
+export type SingleOrArray<T> = T | T[];
 
 export interface Able<A extends Abilities = AbilityTuple> {
   can(...args: CanParameters<A>): boolean;
@@ -18,7 +20,7 @@ export interface Able<A extends Abilities = AbilityTuple> {
 
 export type AbilityFactory<T extends AnyAbility> = AnyClass<T> | ((rules?: any[], options?: any) => T);
 
-export type PermissionsMetadata = Permissions<any>[];
+export type PermissionsMetadata = AnyPermissions[];
 
 export interface AuthUser<ROLE = string, ID = string> {
   id: ID;

@@ -4,13 +4,13 @@ import {DefaultActions} from './actions';
 import {AbilityFactory, AuthUser} from './types';
 
 export class UserAbilityBuilder<
-  Subjects extends Subject = Subject,
-  Actions extends string = DefaultActions,
-  User extends AuthUser<unknown, unknown> = AuthUser,
+  TSubject extends Subject = Subject,
+  TAction extends string = DefaultActions,
+  TUser extends AuthUser<unknown, unknown> = AuthUser,
 > extends AbilityBuilder<AnyAbility> {
   constructor(
-    public user: User,
-    public permissions: AnyPermissions<string, Subjects, Actions, User>[],
+    public user: TUser,
+    public permissions: AnyPermissions<string, TSubject, TAction, TUser>[],
     abilityFactory: AbilityFactory<AnyAbility>,
   ) {
     super(abilityFactory);
@@ -31,21 +31,21 @@ export class UserAbilityBuilder<
 }
 
 export type DefinePermissions<
-  Subjects extends Subject = Subject,
-  Actions extends string = DefaultActions,
-  User extends AuthUser<unknown, unknown> = AuthUser,
-> = (builder: UserAbilityBuilder<Subjects, Actions, User>) => void;
+  TSubject extends Subject = Subject,
+  TAction extends string = DefaultActions,
+  TUser extends AuthUser<unknown, unknown> = AuthUser,
+> = (builder: UserAbilityBuilder<TSubject, TAction, TUser>) => void;
 
 export type Permissions<
-  Roles extends string,
-  Subjects extends Subject = Subject,
-  Actions extends string = DefaultActions,
-  User extends AuthUser<unknown, unknown> = AuthUser<Roles>,
-> = Partial<Record<Roles | 'every' | 'everyone', DefinePermissions<Subjects, Actions, User>>>;
+  TRole extends string,
+  TSubject extends Subject = Subject,
+  TAction extends string = DefaultActions,
+  TUser extends AuthUser<unknown, unknown> = AuthUser<TRole>,
+> = Partial<Record<TRole | 'every' | 'everyone', DefinePermissions<TSubject, TAction, TUser>>>;
 
 export type AnyPermissions<
-  Roles extends string = string,
-  Subjects extends Subject = Subject,
-  Actions extends string = string,
-  User extends AuthUser<unknown, unknown> = AuthUser<Roles>,
-> = Permissions<Roles, Subjects, Actions, User>;
+  TRole extends string = string,
+  TSubject extends Subject = Subject,
+  TAction extends string = string,
+  TUser extends AuthUser<unknown, unknown> = AuthUser<TRole>,
+> = Permissions<TRole, TSubject, TAction, TUser>;
