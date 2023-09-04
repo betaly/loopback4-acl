@@ -5,6 +5,7 @@ import {BErrors} from 'berrors';
 import {Actions} from '../../../../../actions';
 import {Conditions, SqlConditions} from '../../../../../conditions';
 import {acl, authorise, usePermissions} from '../../../../../decorators';
+import {AclErrors} from '../../../../../errors';
 import {Able} from '../../../../../types';
 import {Todo} from '../models';
 import {permissions} from '../permissions';
@@ -268,7 +269,7 @@ export class TodoController {
     able?: Able,
   ) {
     if (!able) {
-      throw new BErrors.Forbidden(`Not able to update todo ${id}`);
+      throw new AclErrors.NotAllowedAccess(`Not able to update todo ${id}`);
     }
     const result = able.can(Actions.update, Todo);
     return {
