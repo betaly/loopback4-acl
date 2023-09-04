@@ -10,7 +10,7 @@ import {BindingScope, injectable, Provider} from '@loopback/context';
 import {Getter, inject, service} from '@loopback/core';
 import debugFactory from 'debug';
 
-import {SuperUserAble} from './ables';
+import {CaslAble, SuperuserAble} from './ables';
 import {Actions} from './actions';
 import {Conditions} from './conditions';
 import {getPermissionsMetadata} from './decorators';
@@ -59,7 +59,7 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     if (superuserRole && roles.includes(superuserRole)) {
       debug('superuser access granted');
       debug('Binding AclBindings.ABLE to superuser "able" of %s', user.name);
-      invocationContext.bind(AclBindings.ABLE).to(new SuperUserAble());
+      invocationContext.bind(AclBindings.ABLE).to(new SuperuserAble(user));
       return AuthorizationDecision.ALLOW;
     }
 
@@ -69,7 +69,7 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     const permissions = getPermissionsMetadata(invocationContext.target, invocationContext.methodName);
     const ability = await this.abilityService.buildForUser(user, {permissions});
     debug('Binding AclBindings.ABLE to ability of "%s" with roles [%s]', user.name, roles.join(','));
-    invocationContext.bind(AclBindings.ABLE).to(ability);
+    invocationContext.bind(AclBindings.ABLE).to(new CaslAble(user, ability));
 
     const rules = ability.rulesFor(act, sub);
     debug('Binding AclBindings.CONDITIONS to rules for %s %s: %o', act, sub, rules);

@@ -1,6 +1,7 @@
-import {Permissions, buildAbilityForUser, Actions} from '..';
 import {InferSubjects, subject} from '@casl/ability';
 import {uid} from 'uid';
+
+import {Actions, buildAbilityForUser, Permissions} from '..';
 
 enum Role {
   admin = 'admin',
@@ -128,15 +129,19 @@ async function main() {
   console.log('- READ');
   console.log('admin can read User', adminAbility.can(Actions.read, User.name));
   console.log('admin can read Self', adminAbility.can(Actions.read, subjectUser(adminUser)));
+  console.log('admin can read Other admin', adminAbility.can(Actions.read, subjectUser(otherAdminUser)));
   console.log('- UPDATE');
   console.log('admin can update User', adminAbility.can(Actions.update, User.name));
   console.log('admin can update Self', adminAbility.can(Actions.update, subjectUser(adminUser)));
+  console.log('admin can update Other admin', adminAbility.can(Actions.update, subjectUser(otherAdminUser)));
   console.log('- DELETE');
   console.log('admin can delete User', adminAbility.can(Actions.delete, User.name));
   console.log('admin can delete Self', adminAbility.can(Actions.delete, subjectUser(adminUser)));
+  console.log('admin can delete Other admin', adminAbility.can(Actions.delete, subjectUser(otherAdminUser)));
   console.log('- EXECUTE');
   console.log('admin can execute User', adminAbility.can(Actions.execute, User.name));
   console.log('admin can execute Self', adminAbility.can(Actions.execute, subjectUser(adminUser)));
+  console.log('admin can execute Other admin', adminAbility.can(Actions.execute, subjectUser(otherAdminUser)));
 }
 
 main().catch(err => {

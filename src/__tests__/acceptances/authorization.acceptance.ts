@@ -1,5 +1,6 @@
 import {Client, toJSON} from '@loopback/testlab';
 
+import {CaslAble, SuperuserAble} from '../../ables';
 import {AclBindings} from '../../keys';
 import {AuthUser} from '../../types';
 import {TestAuthorizationApplication} from '../fixtures/application';
@@ -350,7 +351,7 @@ describe('Authorization', () => {
           .expect(200)
           .expect(res => {
             expect(res.body).toEqual({
-              type: 'SuperUserAble',
+              type: SuperuserAble.name,
               result: true,
             });
           });
@@ -370,7 +371,7 @@ describe('Authorization', () => {
           .expect(200)
           .expect(res => {
             expect(res.body).toEqual({
-              type: 'PureAbility',
+              type: CaslAble.name,
               result: true,
             });
           });

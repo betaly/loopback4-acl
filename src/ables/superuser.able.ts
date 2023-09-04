@@ -1,7 +1,7 @@
-import {Able} from '../types';
+import {Able, AuthUser} from '../types';
 
-export class SuperUserAble implements Able {
-  constructor() {}
+export class SuperuserAble<User extends AuthUser = AuthUser> implements Able<User> {
+  constructor(readonly user: User) {}
 
   can(): boolean {
     return true;

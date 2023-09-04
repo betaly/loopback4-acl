@@ -13,7 +13,8 @@ export type AnyObject = Record<PropertyKey, unknown>;
 
 export type SingleOrArray<T> = T | T[];
 
-export interface Able<A extends Abilities = AbilityTuple> {
+export interface Able<User extends AuthUser = AuthUser, A extends Abilities = AbilityTuple> {
+  readonly user: User;
   can(...args: CanParameters<A>): boolean;
   cannot(...args: CanParameters<A>): boolean;
 }

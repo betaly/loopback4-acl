@@ -1,7 +1,7 @@
 import {BindingKey} from '@loopback/context';
 
 import {Conditions} from './conditions';
-import {AclConfig, AuthHookFn, UserResolver} from './types';
+import {Able, AclConfig, AuthHookFn, UserResolver} from './types';
 
 export namespace AclBindings {
   export const CONFIG = BindingKey.create<AclConfig>('acl.config');
@@ -11,7 +11,7 @@ export namespace AclBindings {
   export const CURRENT_PERMISSIONS = BindingKey.create('acl.currentPermissions');
   export const SUBJECT = BindingKey.create('acl.subject');
   export const CONDITIONS = BindingKey.create<Conditions>('acl.conditions');
-  export const ABLE = BindingKey.create('acl.able');
+  export const ABLE = BindingKey.create<Able>('acl.able');
 
   export const Auth = {
     SUBJECT_HOOKS: BindingKey.create<AuthHookFn[]>('acl.auth.subjectHooks'),
