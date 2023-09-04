@@ -11,4 +11,4 @@ export * from './keys';
 export * from './permissions';
 export * from './services';
 export * from './types';
-export {InferSubjects} from '@casl/ability';
+export {InferSubjects, subject} from '@casl/ability';
