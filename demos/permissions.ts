@@ -1,58 +1,16 @@
-import {InferSubjects, subject} from '@casl/ability';
-import {uid} from 'uid';
+import {subject} from '@casl/ability';
 
-import {Actions, buildAbilityForUser, Permissions} from '..';
-
-enum Role {
-  admin = 'admin',
-  manager = 'manager',
-  member = 'member',
-}
-
-class User {
-  id: string;
-  name: string;
-  role: Role;
-
-  constructor(data: Partial<User>) {
-    this.id = uid();
-    Object.assign(this, data);
-  }
-}
-
-type Subject = InferSubjects<typeof User>;
-
-const permissions: Permissions<Role, Subject, Actions> = {
-  [Role.member]: ({user, can, cannot}) => {
-    can(Actions.create, User.name, {role: Role.member});
-    can(Actions.read, User.name, {id: user.id});
-    can(Actions.update, User.name, {id: user.id});
-    can(Actions.execute, User.name, {id: user.id});
-  },
-  [Role.manager]: ({user, can, cannot, extend}) => {
-    extend(Role.member);
-    can(Actions.create, User.name, {role: Role.manager});
-    can(Actions.read, User.name, {role: {$in: [Role.member, Role.manager]}});
-    can(Actions.update, User.name, {role: {$in: [Role.member, Role.manager]}});
-    can(Actions.delete, User.name, {role: {$in: [Role.member, Role.manager]}});
-  },
-  [Role.admin]: ({can, extend}) => {
-    can(Actions.create, 'all');
-    can(Actions.read, 'all');
-    can(Actions.update, 'all');
-    can(Actions.delete, 'all');
-    can(Actions.execute, 'all');
-  },
-};
-
-const memberUser = new User({name: 'member', role: Role.member});
-const otherMemberUser = new User({name: 'member other', role: Role.member});
-const managerUser = new User({name: 'manager', role: Role.manager});
-const otherManagerUser = new User({name: 'manager other', role: Role.manager});
-const adminUser = new User({name: 'admin', role: Role.admin});
-const otherAdminUser = new User({name: 'admin other', role: Role.admin});
+import {Actions, buildAbilityForUser} from '..';
+import {User, Role, permissions} from './commons/defines';
 
 async function main() {
+  const memberUser = new User({name: 'member', role: Role.member});
+  const otherMemberUser = new User({name: 'member other', role: Role.member});
+  const managerUser = new User({name: 'manager', role: Role.manager});
+  const otherManagerUser = new User({name: 'manager other', role: Role.manager});
+  const adminUser = new User({name: 'admin', role: Role.admin});
+  const otherAdminUser = new User({name: 'admin other', role: Role.admin});
+
   const memberAbility = await buildAbilityForUser(memberUser, permissions);
   const managerAbility = await buildAbilityForUser(managerUser, permissions);
   const adminAbility = await buildAbilityForUser(adminUser, permissions);
