@@ -1,7 +1,7 @@
 import {Binding, BindingTemplate} from '@loopback/context';
 import {extensionFor} from '@loopback/core';
 
-import {Permissions} from './permissions';
+import {AnyPermissions} from './permissions';
 
 export const PERMISSIONS_NAMESPACE = 'permissions';
 
@@ -18,6 +18,6 @@ export const asPermissions: BindingTemplate = binding => {
   binding.tag({namespace: 'permissions'});
 };
 
-export function createBindingFromPermissions<Roles extends string>(permissions: Permissions<Roles>, name: string) {
-  return new Binding<Permissions<Roles>>(`${PERMISSIONS_NAMESPACE}.${name}`).to(permissions).apply(asPermissions);
+export function createBindingFromPermissions(permissions: AnyPermissions, name: string) {
+  return new Binding<AnyPermissions>(`${PERMISSIONS_NAMESPACE}.${name}`).to(permissions).apply(asPermissions);
 }

@@ -27,9 +27,9 @@ export class AbilityService<
 > {
   constructor(
     @extensions()
-    private readonly getAllPermissions: Getter<AnyPermissions<TRole, TSubject, TAction, TUser>[]>,
+    private readonly getAllPermissions: Getter<AnyPermissions<TRole, [TAction, TSubject], TUser>[]>,
     @inject.getter(AclBindings.CURRENT_PERMISSIONS, {optional: true})
-    private readonly getCurrentPermissions: Getter<AnyPermissions<TRole, TSubject, TAction, TUser>>,
+    private readonly getCurrentPermissions: Getter<AnyPermissions<TRole, [TAction, TSubject], TUser>>,
   ) {}
 
   async buildForUser(

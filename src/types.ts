@@ -4,9 +4,9 @@ import {Abilities, AbilityTuple, AnyAbility, CanParameters} from '@casl/ability'
 import {BindingAddress, Context, Provider} from '@loopback/context';
 import {Constructor} from '@loopback/core';
 
+import {Conditions} from './conditions';
 import {AuthContext} from './context';
 import {AnyPermissions} from './permissions';
-import {Conditions} from './conditions';
 
 export declare type AnyClass<R = any> = new (...args: any[]) => R;
 export type AnyRecord = Record<PropertyKey, any>;

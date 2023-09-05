@@ -1,7 +1,7 @@
 import {subject} from '@casl/ability';
 
 import {Actions, buildAbilityForUser} from '..';
-import {User, Role, permissions} from './commons/defines';
+import {permissions, Role, User} from './commons/defines';
 
 async function main() {
   const memberUser = new User({name: 'member', role: Role.member});

@@ -17,7 +17,7 @@ describe('Permissions', () => {
   let currentUser: AuthUser | undefined = undefined;
 
   describe('using @usePermissions', () => {
-    const permissions: Permissions<Roles, Subject, Actions> = {
+    const permissions: Permissions<Roles, [Actions, Subject]> = {
       everyone({can}) {
         can(Actions.read, 'Article');
       },

@@ -22,7 +22,7 @@ export async function buildAbilityForUser<
   TUser extends AuthUser<TRole, unknown> = AuthUser<TRole, unknown>,
 >(
   user: TUser,
-  permissions: SingleOrArray<AnyPermissions> | SingleOrArray<Permissions<TRole, TSubject, TAction, TUser>>,
+  permissions: SingleOrArray<AnyPermissions> | SingleOrArray<Permissions<TRole, [TAction, TSubject], TUser>>,
   options: AbilityFactory<AnyAbility> | AbilityBuildOptions<AnyAbility> = {},
 ): Promise<AnyAbility> {
   debug(`Building ability for user ${user.id}`);
@@ -34,7 +34,7 @@ export async function buildAbilityForUser<
 
   const ability = new UserAbilityBuilder(
     user,
-    toArray(permissions) as Permissions<TRole, TSubject, TAction, TUser>[],
+    toArray(permissions) as Permissions<TRole, [TAction, TSubject], TUser>[],
     abilityFactory,
   );
 

@@ -1,7 +1,7 @@
 import {AbilityTuple, AnyAbility, CanParameters} from '@casl/ability';
 
-import {Able, AuthUser} from '../types';
 import {Conditions} from '../conditions';
+import {Able, AuthUser} from '../types';
 
 export class CaslAble<User extends AuthUser = AuthUser> implements Able<User> {
   constructor(private ability: AnyAbility, readonly user: User) {}

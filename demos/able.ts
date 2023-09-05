@@ -1,6 +1,5 @@
-import {permissions, Role, User} from './commons/defines';
 import {buildAbilityForUser, CaslAble} from '..';
-import {subject} from '@casl/ability';
+import {permissions, Role, User} from './commons/defines';
 
 async function main() {
   const manager = new User({name: 'manager', role: Role.manager});

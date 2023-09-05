@@ -1,12 +1,11 @@
 import {DecoratorFactory, MetadataAccessor, MetadataInspector} from '@loopback/context';
 import {ClassDecoratorFactory, MethodDecoratorFactory} from '@loopback/core';
 
-import {Permissions} from '../permissions';
-import {PermissionsMetadata} from '../types';
+import {AnyPermissions} from '../permissions';
+import {PermissionsMetadata, SingleOrArray} from '../types';
 import {toArray} from '../utils';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PermissionsOptions = Permissions<any> | Permissions<any>[];
+// export type PermissionsOptions = SingleOrArray<AnyPermissions>;
 
 export const PERMISSIONS_METHOD_KEY = MetadataAccessor.create<PermissionsMetadata, MethodDecorator>(
   'permissions:method',
@@ -14,7 +13,7 @@ export const PERMISSIONS_METHOD_KEY = MetadataAccessor.create<PermissionsMetadat
 
 export const PERMISSIONS_CLASS_KEY = MetadataAccessor.create<PermissionsMetadata, ClassDecorator>('permissions:class');
 
-export function usePermissions(options: PermissionsOptions) {
+export function usePermissions(options: SingleOrArray<AnyPermissions>) {
   const spec = toArray(options);
   return function usePermissionsDecoratorForClassOrMethod(
     // Class or a prototype

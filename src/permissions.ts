@@ -1,19 +1,21 @@
-import {AbilityBuilder, AnyAbility, Subject} from '@casl/ability';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import {AbilityBuilder, AnyAbility, PureAbility, Subject} from '@casl/ability';
+import {Abilities} from '@casl/ability/dist/types/types';
 
 import {DefaultActions} from './actions';
 import {AbilityFactory, AuthUser} from './types';
 
 export class UserAbilityBuilder<
-  TSubject extends Subject = Subject,
-  TAction extends string = DefaultActions,
+  TAbilities extends Abilities = [DefaultActions, Subject],
   TUser extends AuthUser<unknown, unknown> = AuthUser,
-> extends AbilityBuilder<AnyAbility> {
+> extends AbilityBuilder<PureAbility<TAbilities>> {
   constructor(
     public user: TUser,
-    public permissions: AnyPermissions<string, TSubject, TAction, TUser>[],
+    public permissions: AnyPermissions<string, TAbilities, TUser>[],
     abilityFactory: AbilityFactory<AnyAbility>,
   ) {
-    super(abilityFactory);
+    super(abilityFactory as any);
   }
 
   extend = (role: string): void => {
@@ -31,21 +33,18 @@ export class UserAbilityBuilder<
 }
 
 export type DefinePermissions<
-  TSubject extends Subject = Subject,
-  TAction extends string = DefaultActions,
+  TAbilities extends Abilities = [DefaultActions, Subject],
   TUser extends AuthUser<unknown, unknown> = AuthUser,
-> = (builder: UserAbilityBuilder<TSubject, TAction, TUser>) => void;
+> = (builder: UserAbilityBuilder<TAbilities, TUser>) => void;
 
 export type Permissions<
   TRole extends string,
-  TSubject extends Subject = Subject,
-  TAction extends string = DefaultActions,
+  TAbilities extends Abilities = [DefaultActions, Subject],
   TUser extends AuthUser<unknown, unknown> = AuthUser<TRole>,
-> = Partial<Record<TRole | 'every' | 'everyone', DefinePermissions<TSubject, TAction, TUser>>>;
+> = Partial<Record<TRole | 'every' | 'everyone', DefinePermissions<TAbilities, TUser>>>;
 
 export type AnyPermissions<
-  TRole extends string = string,
-  TSubject extends Subject = Subject,
-  TAction extends string = string,
-  TUser extends AuthUser<unknown, unknown> = AuthUser<TRole>,
-> = Permissions<TRole, TSubject, TAction, TUser>;
+  TRole extends string = any,
+  TAbilities extends Abilities = any,
+  TUser extends AuthUser<unknown, unknown> = any,
+> = Permissions<TRole, TAbilities, TUser>;

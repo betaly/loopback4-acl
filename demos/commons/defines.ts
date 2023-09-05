@@ -1,5 +1,6 @@
 import {uid} from 'uid';
-import {Actions, Permissions, InferSubjects} from '../..';
+
+import {Actions, Permissions} from '../..';
 
 export enum Role {
   admin = 'admin',
@@ -18,21 +19,21 @@ export class User {
   }
 }
 
-export type Subject = InferSubjects<typeof User>;
+export type Subjects = 'all' | 'User';
 
-export const permissions: Permissions<Role, Subject, Actions> = {
+export const permissions: Permissions<Role, [Actions, Subjects]> = {
   [Role.member]: ({user, can, cannot}) => {
-    can(Actions.create, User.name, {role: Role.member});
-    can(Actions.read, User.name, {id: user.id});
-    can(Actions.update, User.name, {id: user.id});
-    can(Actions.execute, User.name, {id: user.id});
+    can(Actions.create, 'User', {role: Role.member});
+    can(Actions.read, 'User', {id: user.id});
+    can(Actions.update, 'User', {id: user.id});
+    can(Actions.execute, 'User', {id: user.id});
   },
   [Role.manager]: ({user, can, cannot, extend}) => {
     extend(Role.member);
-    can(Actions.create, User.name, {role: Role.manager});
-    can(Actions.read, User.name, {role: {$in: [Role.member, Role.manager]}});
-    can(Actions.update, User.name, {role: {$in: [Role.member, Role.manager]}});
-    can(Actions.delete, User.name, {role: {$in: [Role.member, Role.manager]}});
+    can(Actions.create, 'User', {role: Role.manager});
+    can(Actions.read, 'User', {role: {$in: [Role.member, Role.manager]}});
+    can(Actions.update, 'User', {role: {$in: [Role.member, Role.manager]}});
+    can(Actions.delete, 'User', {role: {$in: [Role.member, Role.manager]}});
   },
   [Role.admin]: ({can, extend}) => {
     can(Actions.create, 'all');
