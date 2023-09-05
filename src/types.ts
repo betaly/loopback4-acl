@@ -6,6 +6,7 @@ import {Constructor} from '@loopback/core';
 
 import {AuthContext} from './context';
 import {AnyPermissions} from './permissions';
+import {Conditions} from './conditions';
 
 export declare type AnyClass<R = any> = new (...args: any[]) => R;
 export type AnyRecord = Record<PropertyKey, any>;
@@ -15,6 +16,7 @@ export type SingleOrArray<T> = T | T[];
 
 export interface Able<User extends AuthUser = AuthUser, A extends Abilities = AbilityTuple> {
   readonly user: User;
+  conditionsFor(...args: CanParameters<A>): Conditions | undefined;
   can(...args: CanParameters<A>): boolean;
   cannot(...args: CanParameters<A>): boolean;
 }

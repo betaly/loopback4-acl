@@ -69,7 +69,7 @@ export class CaslAuthorizer implements Provider<Authorizer> {
     const permissions = getPermissionsMetadata(invocationContext.target, invocationContext.methodName);
     const ability = await this.abilityService.buildForUser(user, {permissions});
     debug('Binding AclBindings.ABLE to ability of "%s" with roles [%s]', user.name, roles.join(','));
-    invocationContext.bind(AclBindings.ABLE).to(new CaslAble(user, ability));
+    invocationContext.bind(AclBindings.ABLE).to(new CaslAble(ability, user));
 
     const rules = ability.rulesFor(act, sub);
     debug('Binding AclBindings.CONDITIONS to rules for %s %s: %o', act, sub, rules);
