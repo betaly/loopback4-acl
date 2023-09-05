@@ -3,8 +3,8 @@ export enum DefaultActions {
   create = 'create',
   update = 'update',
   delete = 'delete',
-  manage = 'manage',
   execute = 'execute',
+  manage = 'manage',
 }
 
 export type Actions = DefaultActions;

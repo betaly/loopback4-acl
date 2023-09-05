@@ -36,10 +36,6 @@ export const permissions: Permissions<Role, [Actions, Subjects]> = {
     can(Actions.delete, 'User', {role: {$in: [Role.member, Role.manager]}});
   },
   [Role.admin]: ({can, extend}) => {
-    can(Actions.create, 'all');
-    can(Actions.read, 'all');
-    can(Actions.update, 'all');
-    can(Actions.delete, 'all');
-    can(Actions.execute, 'all');
+    can(Actions.manage, 'all');
   },
 };
