@@ -1,6 +1,6 @@
-import {Able, AuthUser} from '../types';
+import {Able, IAuthUserWithRoles} from '../types';
 
-export class SuperuserAble<User extends AuthUser = AuthUser> implements Able<User> {
+export class SuperuserAble<User extends IAuthUserWithRoles = IAuthUserWithRoles> implements Able<User> {
   constructor(readonly user: User) {}
 
   conditionsFor() {

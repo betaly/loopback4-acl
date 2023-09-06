@@ -3,7 +3,7 @@ import debugFactory from 'debug';
 
 import {DefaultActions} from './actions';
 import {AnyPermissions, Permissions, UserAbilityBuilder} from './permissions';
-import {AbilityFactory, AuthUser, SingleOrArray} from './types';
+import {AbilityFactory, IAuthUserWithRoles, SingleOrArray} from './types';
 import {toArray} from './utils';
 
 const debug = debugFactory('acl:ability-builder');
@@ -19,7 +19,7 @@ export async function buildAbilityForUser<
   TRole extends string = string,
   TSubject extends Subject = Subject,
   TAction extends string = DefaultActions,
-  TUser extends AuthUser<TRole, unknown> = AuthUser<TRole, unknown>,
+  TUser extends IAuthUserWithRoles<TRole, unknown> = IAuthUserWithRoles<TRole, unknown>,
 >(
   user: TUser,
   permissions: SingleOrArray<AnyPermissions> | SingleOrArray<Permissions<TRole, [TAction, TSubject], TUser>>,

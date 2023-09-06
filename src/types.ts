@@ -14,7 +14,7 @@ export type AnyObject = Record<PropertyKey, unknown>;
 
 export type SingleOrArray<T> = T | T[];
 
-export interface Able<User extends AuthUser = AuthUser, A extends Abilities = AbilityTuple> {
+export interface Able<User extends IAuthUserWithRoles = IAuthUserWithRoles, A extends Abilities = AbilityTuple> {
   readonly user: User;
   conditionsFor(...args: CanParameters<A>): Conditions | undefined;
   can(...args: CanParameters<A>): boolean;
@@ -25,17 +25,19 @@ export type AbilityFactory<T extends AnyAbility> = AnyClass<T> | ((rules?: any[]
 
 export type PermissionsMetadata = AnyPermissions[];
 
-export interface AuthUser<ROLE = string, ID = string> {
+export interface IAuthUserWithRoles<ROLE = string, ID = string> {
   id: ID;
   name?: string;
   role?: ROLE;
   roles?: ROLE[];
 }
 
-export type UserResolver<User extends AuthUser = AuthUser> = (context: Context) => Promise<User | undefined>;
+export type UserResolver<User extends IAuthUserWithRoles = IAuthUserWithRoles> = (
+  context: Context,
+) => Promise<User | undefined>;
 
 export interface AclConfig {
-  userResolver?: BindingAddress<AuthUser> | UserResolver;
+  userResolver?: BindingAddress<IAuthUserWithRoles> | UserResolver;
   superuserRole?: string;
 }
 

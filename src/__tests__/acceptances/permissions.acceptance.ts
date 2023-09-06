@@ -6,7 +6,7 @@ import {Client} from '@loopback/testlab';
 import {Actions} from '../../actions';
 import {authorise, usePermissions} from '../../decorators';
 import {Permissions} from '../../permissions';
-import {AuthUser} from '../../types';
+import {IAuthUserWithRoles} from '../../types';
 import {Todo} from '../fixtures/components/todo';
 import {Roles} from '../fixtures/roles';
 import {givenUserWithRole, setupApplication} from '../test-helper';
@@ -14,7 +14,7 @@ import {givenUserWithRole, setupApplication} from '../test-helper';
 describe('Permissions', () => {
   let app: Application;
   let client: Client;
-  let currentUser: AuthUser | undefined = undefined;
+  let currentUser: IAuthUserWithRoles | undefined = undefined;
 
   describe('using @usePermissions', () => {
     const permissions: Permissions<Roles, [Actions, Subject]> = {

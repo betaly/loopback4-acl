@@ -4,11 +4,11 @@ import {AbilityBuilder, AnyAbility, PureAbility, Subject} from '@casl/ability';
 import {Abilities} from '@casl/ability/dist/types/types';
 
 import {DefaultActions} from './actions';
-import {AbilityFactory, AuthUser} from './types';
+import {AbilityFactory, IAuthUserWithRoles} from './types';
 
 export class UserAbilityBuilder<
   TAbilities extends Abilities = [DefaultActions, Subject],
-  TUser extends AuthUser<unknown, unknown> = AuthUser,
+  TUser extends IAuthUserWithRoles<unknown, unknown> = IAuthUserWithRoles,
 > extends AbilityBuilder<PureAbility<TAbilities>> {
   constructor(
     public user: TUser,
@@ -34,17 +34,17 @@ export class UserAbilityBuilder<
 
 export type DefinePermissions<
   TAbilities extends Abilities = [DefaultActions, Subject],
-  TUser extends AuthUser<unknown, unknown> = AuthUser,
+  TUser extends IAuthUserWithRoles<unknown, unknown> = IAuthUserWithRoles,
 > = (builder: UserAbilityBuilder<TAbilities, TUser>) => void;
 
 export type Permissions<
   TRole extends string,
   TAbilities extends Abilities = [DefaultActions, Subject],
-  TUser extends AuthUser<unknown, unknown> = AuthUser<TRole>,
+  TUser extends IAuthUserWithRoles<unknown, unknown> = IAuthUserWithRoles<TRole>,
 > = Partial<Record<TRole | 'every' | 'everyone', DefinePermissions<TAbilities, TUser>>>;
 
 export type AnyPermissions<
   TRole extends string = any,
   TAbilities extends Abilities = any,
-  TUser extends AuthUser<unknown, unknown> = any,
+  TUser extends IAuthUserWithRoles<unknown, unknown> = any,
 > = Permissions<TRole, TAbilities, TUser>;

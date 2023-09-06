@@ -8,7 +8,7 @@ import {DefaultActions} from '../actions';
 import {PERMISSIONS_EXTENSION_POINT_NAME} from '../bindings';
 import {AclBindings} from '../keys';
 import {AnyPermissions} from '../permissions';
-import {AbilityFactory, AuthUser, SingleOrArray} from '../types';
+import {AbilityFactory, IAuthUserWithRoles, SingleOrArray} from '../types';
 
 const debug = debugFactory('acl:ability-service');
 
@@ -23,7 +23,7 @@ export class AbilityService<
   TRole extends string = string,
   TSubject extends Subject = Subject,
   TAction extends string = DefaultActions,
-  TUser extends AuthUser<TRole, unknown> = AuthUser<TRole, unknown>,
+  TUser extends IAuthUserWithRoles<TRole, unknown> = IAuthUserWithRoles<TRole, unknown>,
 > {
   constructor(
     @extensions()

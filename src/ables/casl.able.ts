@@ -1,9 +1,9 @@
 import {AbilityTuple, AnyAbility, CanParameters} from '@casl/ability';
 
 import {Conditions} from '../conditions';
-import {Able, AuthUser} from '../types';
+import {Able, IAuthUserWithRoles} from '../types';
 
-export class CaslAble<User extends AuthUser = AuthUser> implements Able<User> {
+export class CaslAble<User extends IAuthUserWithRoles = IAuthUserWithRoles> implements Able<User> {
   constructor(private ability: AnyAbility, readonly user: User) {}
 
   conditionsFor(...args: CanParameters<AbilityTuple, false>): Conditions | undefined {

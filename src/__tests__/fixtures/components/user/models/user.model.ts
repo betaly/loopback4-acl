@@ -1,10 +1,10 @@
 import {Entity, model, property} from '@loopback/repository';
 
-import {AuthUser} from '../../../../../types';
+import {IAuthUserWithRoles} from '../../../../../types';
 import {Roles} from '../../../roles';
 
 @model()
-export class User extends Entity implements AuthUser<Roles> {
+export class User extends Entity implements IAuthUserWithRoles<Roles> {
   @property({
     type: 'string',
     id: true,

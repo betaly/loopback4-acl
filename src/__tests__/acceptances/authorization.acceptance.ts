@@ -2,7 +2,7 @@ import {Client, toJSON} from '@loopback/testlab';
 
 import {CaslAble, SuperuserAble} from '../../ables';
 import {AclBindings} from '../../keys';
-import {AuthUser} from '../../types';
+import {IAuthUserWithRoles} from '../../types';
 import {TestAuthorizationApplication} from '../fixtures/application';
 import {Todo, TodoController, TodoRepository} from '../fixtures/components/todo';
 import {Roles} from '../fixtures/roles';
@@ -17,7 +17,7 @@ describe('Authorization', () => {
   let client: Client;
   let todoRepo: TodoRepository;
   let persistedTodo: Todo;
-  let currentUser: AuthUser | undefined = undefined;
+  let currentUser: IAuthUserWithRoles | undefined = undefined;
 
   let requests: ReturnType<typeof TodoRequests>;
 
