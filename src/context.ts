@@ -20,7 +20,7 @@ export class AuthContext {
 
   get params() {
     if (!this._params) {
-      const route = this.invocationContext.getSync<ResolvedRoute>(RestBindings.Operation.ROUTE);
+      const route = this.invocationContext.source?.value as ResolvedRoute;
       this._params = {
         ...route?.pathParams,
         ...this.request.params,
