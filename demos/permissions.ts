@@ -1,6 +1,6 @@
 import {subject} from '@casl/ability';
 
-import {Actions, buildAbilityForUser} from '..';
+import {Actions, AnyObject, buildAbilityForUser} from '..';
 import {permissions, Role, User} from './commons/defines';
 
 async function main() {
@@ -16,6 +16,7 @@ async function main() {
   const adminAbility = await buildAbilityForUser(adminUser, permissions);
 
   const subjectUser = (user: User) => subject(User.name, user);
+  const subjectResource = (data: AnyObject) => subject('Resource', data);
 
   // console.log(memberAbility.relevantRuleFor(Actions.update, subject(User.name, subjectUser(memberUser))));
 
@@ -48,6 +49,12 @@ async function main() {
   );
   console.log('member can not execute User manager', memberAbility.cannot(Actions.execute, subjectUser(managerUser)));
   console.log('member can not execute User admin', memberAbility.cannot(Actions.execute, subjectUser(adminUser)));
+
+  console.log('member can update resource with id 1', memberAbility.cannot(Actions.update, subjectResource({id: 1})));
+  console.log(
+    'member can not delete resource with id 1',
+    memberAbility.cannot(Actions.delete, subjectResource({id: 1})),
+  );
 
   console.log();
   console.log('------------------');

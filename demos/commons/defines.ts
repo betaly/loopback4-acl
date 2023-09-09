@@ -19,7 +19,7 @@ export class User {
   }
 }
 
-export type Subjects = 'all' | 'User';
+export type Subjects = 'all' | 'User' | 'Resource';
 
 export const permissions: Permissions<Role, [Actions, Subjects]> = {
   [Role.member]: ({user, can, cannot}) => {
@@ -27,13 +27,20 @@ export const permissions: Permissions<Role, [Actions, Subjects]> = {
     can(Actions.read, 'User', {id: user.id});
     can(Actions.update, 'User', {id: user.id});
     can(Actions.execute, 'User', {id: user.id});
+
+    can(Actions.read, 'Resource');
+    can(Actions.create, 'Resource');
+    can(Actions.update, 'Resource');
   },
   [Role.manager]: ({user, can, cannot, extend}) => {
     extend(Role.member);
+
     can(Actions.create, 'User', {role: Role.manager});
     can(Actions.read, 'User', {role: {$in: [Role.member, Role.manager]}});
     can(Actions.update, 'User', {role: {$in: [Role.member, Role.manager]}});
     can(Actions.delete, 'User', {role: {$in: [Role.member, Role.manager]}});
+
+    can(Actions.manage, 'Resource');
   },
   [Role.admin]: ({can, extend}) => {
     can(Actions.manage, 'all');
