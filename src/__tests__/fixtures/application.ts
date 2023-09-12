@@ -1,16 +1,13 @@
-import '@bleco/boot';
-
-import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
-import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
+import {IntegrateMixin} from 'loopback4-plus';
 
 import {AclComponent} from '../../component';
 import {AclBindings} from '../../keys';
 import {TodoComponent} from './components/todo/component';
 import {UserComponent} from './components/user/component';
 
-export class TestAuthorizationApplication extends BootMixin(RepositoryMixin(RestApplication)) {
+export class TestAuthorizationApplication extends IntegrateMixin(RestApplication) {
   constructor(config: ApplicationConfig) {
     super(config);
     this.projectRoot = __dirname;

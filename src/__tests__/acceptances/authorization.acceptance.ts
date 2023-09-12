@@ -1,4 +1,5 @@
 import {Client, toJSON} from '@loopback/testlab';
+import {buildApiFromController} from 'loopback4-testlab';
 
 import {CaslAble, SuperuserAble} from '../../ables';
 import {AclBindings} from '../../keys';
@@ -7,10 +8,10 @@ import {TestAuthorizationApplication} from '../fixtures/application';
 import {Todo, TodoController, TodoRepository} from '../fixtures/components/todo';
 import {Roles} from '../fixtures/roles';
 import {givenTodo} from '../helpers';
-import {buildRequestsFromController, givenUserWithRole, setupApplication} from '../test-helper';
+import {givenUserWithRole, setupApplication} from '../test-helper';
 
 const TodoOfTom = {userId: 'tom', title: 'Todo title'};
-const TodoRequests = (client: Client) => buildRequestsFromController(client, TodoController);
+const TodoApi = (client: Client) => buildApiFromController(client, TodoController);
 
 describe('Authorization', () => {
   let app: TestAuthorizationApplication;
@@ -19,7 +20,7 @@ describe('Authorization', () => {
   let persistedTodo: Todo;
   let currentUser: IAuthUserWithRoles | undefined = undefined;
 
-  let requests: ReturnType<typeof TodoRequests>;
+  let api: ReturnType<typeof TodoApi>;
 
   beforeEach(async () => {
     currentUser = undefined;
@@ -29,7 +30,7 @@ describe('Authorization', () => {
       },
     }));
     await givenTodoRepository();
-    requests = TodoRequests(client);
+    api = TodoApi(client);
   });
   beforeEach(async () => {
     await todoRepo.deleteAll();
@@ -45,7 +46,7 @@ describe('Authorization', () => {
   describe('crud', () => {
     describe('accessed without authenticated user', () => {
       it(`can not query posts`, () => {
-        return requests
+        return api
           .find()
           .expect(403)
           .expect(res => {
@@ -54,7 +55,7 @@ describe('Authorization', () => {
       });
 
       it(`can not query post`, () => {
-        return requests
+        return api
           .findById({id: 1})
           .expect(403)
           .expect(res => {
@@ -63,7 +64,7 @@ describe('Authorization', () => {
       });
 
       it(`can not create post`, () => {
-        return requests
+        return api
           .create()
           .send(TodoOfTom)
           .expect(403)
@@ -73,7 +74,7 @@ describe('Authorization', () => {
       });
 
       it(`can not update own post`, () => {
-        return requests
+        return api
           .updateById({id: 1})
           .send(TodoOfTom)
           .expect(403)
@@ -84,7 +85,7 @@ describe('Authorization', () => {
 
       it(`can not update other user's post`, async () => {
         currentUser = givenUserWithRole(Roles.customer, 'jerry');
-        return requests
+        return api
           .updateById({id: persistedTodo.id})
           .send({userId: 'jerry', title: 'Todo title'})
           .expect(403)
@@ -94,7 +95,7 @@ describe('Authorization', () => {
       });
 
       it(`can not delete post`, () => {
-        return requests
+        return api
           .deleteById({id: 1})
           .expect(403)
           .expect(res => {
@@ -114,7 +115,7 @@ describe('Authorization', () => {
       });
 
       it(`can query post`, () => {
-        return requests
+        return api
           .findById({id: persistedTodo.id})
           .expect(200)
           .expect(res => {
@@ -123,7 +124,7 @@ describe('Authorization', () => {
       });
 
       it(`can query posts`, () => {
-        return requests
+        return api
           .find()
           .expect(200)
           .expect(res => {
@@ -133,7 +134,7 @@ describe('Authorization', () => {
 
       it(`can create post`, () => {
         const data = toJSON(givenTodo({title: 'go to sleep'}));
-        return requests
+        return api
           .create()
           .send(data)
           .expect(200)
@@ -144,18 +145,18 @@ describe('Authorization', () => {
 
       it(`can update own post`, () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests.updateById({id: persistedTodo.id}).send(data).expect(204);
+        return api.updateById({id: persistedTodo.id}).send(data).expect(204);
       });
 
       it(`can update other user's post`, async () => {
         const jerryTodo = await givenTodoInstance({userId: 'jerry'});
 
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests.updateById({id: jerryTodo.id}).send(data).expect(204);
+        return api.updateById({id: jerryTodo.id}).send(data).expect(204);
       });
 
       it(`can delete post`, () => {
-        return requests.deleteById({id: persistedTodo.id}).expect(204);
+        return api.deleteById({id: persistedTodo.id}).expect(204);
       });
     });
 
@@ -165,7 +166,7 @@ describe('Authorization', () => {
       });
 
       it(`can query post`, () => {
-        return requests
+        return api
           .findById({id: persistedTodo.id})
           .expect(200)
           .expect(res => {
@@ -174,7 +175,7 @@ describe('Authorization', () => {
       });
 
       it(`can query posts`, () => {
-        return requests
+        return api
           .find()
           .expect(200)
           .expect(res => {
@@ -183,7 +184,7 @@ describe('Authorization', () => {
       });
 
       it(`can not update post`, () => {
-        return requests
+        return api
           .updateById({id: persistedTodo.id})
           .expect(403)
           .expect(res => {
@@ -198,7 +199,7 @@ describe('Authorization', () => {
       });
 
       it(`can query post`, () => {
-        return requests
+        return api
           .findById({id: persistedTodo.id})
           .expect(200)
           .expect(res => {
@@ -207,7 +208,7 @@ describe('Authorization', () => {
       });
 
       it(`can query posts`, () => {
-        return requests
+        return api
           .find()
           .expect(200)
           .expect(res => {
@@ -216,7 +217,7 @@ describe('Authorization', () => {
       });
 
       it(`can create post`, () => {
-        return requests
+        return api
           .create()
           .send(TodoOfTom)
           .expect(200)
@@ -226,14 +227,14 @@ describe('Authorization', () => {
       });
 
       it(`can update own post`, () => {
-        return requests.updateById({id: persistedTodo.id}).expect(204);
+        return api.updateById({id: persistedTodo.id}).expect(204);
       });
 
       it(`can not update other user's post`, async () => {
         const jerryTodo = await givenTodoInstance({userId: 'jerry'});
 
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateById({id: jerryTodo.id})
           .send(data)
           .expect(403)
@@ -243,7 +244,7 @@ describe('Authorization', () => {
       });
 
       it(`can not delete post`, () => {
-        return requests.deleteById({id: persistedTodo.id}).expect(403);
+        return api.deleteById({id: persistedTodo.id}).expect(403);
       });
     });
   });
@@ -267,7 +268,7 @@ describe('Authorization', () => {
     function testInjectSubject() {
       it('should inject subject param', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateByIdSubjectParam({id: persistedTodo.id})
           .send(data)
           .expect(200)
@@ -278,7 +279,7 @@ describe('Authorization', () => {
 
       it('should inject subject param with tuple subject resolver', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateByIdSubjectParamTuple({id: persistedTodo.id})
           .send(data)
           .expect(200)
@@ -298,12 +299,12 @@ describe('Authorization', () => {
 
       it('conditions param with resolver', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests.updateByIdConditionsParam({id: persistedTodo.id}).send(data).expect(204);
+        return api.updateByIdConditionsParam({id: persistedTodo.id}).send(data).expect(204);
       });
 
       it('conditions param without resolver', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests.updateByIdConditionsParamNoResolver({id: persistedTodo.id}).send(data).expect(204);
+        return api.updateByIdConditionsParamNoResolver({id: persistedTodo.id}).send(data).expect(204);
       });
     });
 
@@ -314,7 +315,7 @@ describe('Authorization', () => {
 
       it('conditions param with resolver', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateByIdConditionsParam({id: persistedTodo.id})
           .send(data)
           .expect(200)
@@ -325,7 +326,7 @@ describe('Authorization', () => {
 
       it('conditions param without resolver', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateByIdConditionsParam({id: persistedTodo.id})
           .send(data)
           .expect(200)
@@ -345,7 +346,7 @@ describe('Authorization', () => {
 
       it('able param', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateByIdAbleParam({id: persistedTodo.id})
           .send(data)
           .expect(200)
@@ -365,7 +366,7 @@ describe('Authorization', () => {
 
       it('able param', async () => {
         const data = toJSON(givenTodo({title: 'wake up'}));
-        return requests
+        return api
           .updateByIdAbleParam({id: persistedTodo.id})
           .send(data)
           .expect(200)
