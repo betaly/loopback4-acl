@@ -1,6 +1,6 @@
 {
   "name": "loopback4-acl",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Access control for Loopback 4",
   "keywords": [
     "loopback",
