@@ -30,7 +30,7 @@ export class CaslAuthorizer implements Provider<Authorizer> {
   constructor(
     @service(AbilityService)
     private abilityService: AbilityService,
-    @inject(AclBindings.USER_RESOLVER, {optional: true})
+    @inject(AclBindings.USER_RESOLVER)
     private resolveUser: UserResolver,
     @inject.getter(AclBindings.SUPERUSER_ROLE, {optional: true})
     private getSuperUserRole?: Getter<string>,

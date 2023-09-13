@@ -106,7 +106,7 @@ export async function sureRunSubjectHooks(invocationContext: InvocationContext) 
       return;
     }
     debug(`run subject ${hooks.length} hooks`);
-    const authCtx = new AuthContext(invocationContext);
+    const authCtx = await AuthContext.create(invocationContext);
     for (const hook of hooks) {
       await hook(authCtx);
     }
