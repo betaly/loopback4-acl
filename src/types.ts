@@ -16,8 +16,11 @@ export type SingleOrArray<T> = T | T[];
 
 export interface Able<User extends IAuthUserWithRoles = IAuthUserWithRoles, A extends Abilities = AbilityTuple> {
   readonly user: User;
+
   conditionsFor(...args: CanParameters<A>): Conditions | undefined;
+
   can(...args: CanParameters<A>): boolean;
+
   cannot(...args: CanParameters<A>): boolean;
 }
 
@@ -41,19 +44,26 @@ export interface AclConfig {
   superuserRole?: string;
 }
 
-export type AuthHookFn = (context: AuthContext) => Promise<void>;
+export type AuthHookFn<User extends IAuthUserWithRoles = IAuthUserWithRoles> = (
+  context: AuthContext<User>,
+) => Promise<void>;
 
-export type SubjectResolveFn<Subject = AnyObject> = (context: AuthContext) => Promise<Subject | undefined>;
+export type SubjectResolveFn<Subject = AnyObject, User extends IAuthUserWithRoles = IAuthUserWithRoles> = (
+  context: AuthContext<User>,
+) => Promise<Subject | undefined>;
 
-export type SubjectResolverProvider<Subject = AnyObject> = Constructor<Provider<SubjectResolveFn<Subject>>>;
+export type SubjectResolverProvider<
+  Subject = AnyObject,
+  User extends IAuthUserWithRoles = IAuthUserWithRoles,
+> = Constructor<Provider<SubjectResolveFn<Subject, User>>>;
 
-export type SubjectResolveTuple<Subject = AnyObject> = [
+export type SubjectResolveTuple<Subject = AnyObject, User extends IAuthUserWithRoles = IAuthUserWithRoles> = [
   AnyClass | BindingAddress<AnyClass>,
-  (service: InstanceType<AnyClass>, context: AuthContext) => Promise<Subject>,
+  (service: InstanceType<AnyClass>, context: AuthContext<User>) => Promise<Subject>,
 ];
 
-export type SubjectResolver<Subject = AnyObject> =
-  | BindingAddress<SubjectResolveFn<Subject>>
-  | SubjectResolveFn<Subject>
-  | SubjectResolverProvider<Subject>
-  | SubjectResolveTuple<Subject>;
+export type SubjectResolver<Subject = AnyObject, User extends IAuthUserWithRoles = IAuthUserWithRoles> =
+  | BindingAddress<SubjectResolveFn<Subject, User>>
+  | SubjectResolveFn<Subject, User>
+  | SubjectResolverProvider<Subject, User>
+  | SubjectResolveTuple<Subject, User>;

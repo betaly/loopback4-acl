@@ -5,25 +5,31 @@ import {uid} from 'uid';
 
 import {AuthContext} from './context';
 import {AclBindings, AclTags} from './keys';
-import {AnyClass, AnyObject, SubjectResolveFn, SubjectResolver} from './types';
+import {AnyClass, AnyObject, AuthHookFn, IAuthUserWithRoles, SubjectResolveFn, SubjectResolver} from './types';
 import {isBindingAddress, isSubjectResolver} from './utils';
 
 const debug = debugFactory('acl:subjects');
 
-export function authorizerForSubjectResolvers<Subject = AnyObject>(
-  resolvers: SubjectResolver<Subject> | Record<string, SubjectResolver<Subject>>,
-): Authorizer {
-  const resolversToUse = isSubjectResolver(resolvers) ? {[AclBindings.SUBJECT.key]: resolvers} : resolvers;
+export function authorizerForSubjectResolvers<
+  Subject = AnyObject,
+  User extends IAuthUserWithRoles = IAuthUserWithRoles,
+>(resolvers: SubjectResolver<Subject, User> | Record<string, SubjectResolver<Subject, User>>): Authorizer {
+  const resolversToUse = (isSubjectResolver(resolvers) ? {[AclBindings.SUBJECT.key]: resolvers} : resolvers) as Record<
+    string,
+    SubjectResolver<Subject, User>
+  >;
 
   return async ({invocationContext}) => {
-    const hooks = sureSubjectHooks(invocationContext);
+    const hooks = sureSubjectHooks<User>(invocationContext);
     hooks.push(toAuthHooks(resolversToUse));
     return AuthorizationDecision.ABSTAIN;
   };
 }
 
-function toAuthHooks<Subject = AnyObject>(resolvers: Record<string, SubjectResolver<Subject>>) {
-  return async (ctx: AuthContext) => {
+function toAuthHooks<Subject = AnyObject, User extends IAuthUserWithRoles = IAuthUserWithRoles>(
+  resolvers: Record<string, SubjectResolver<Subject, User>>,
+) {
+  return async (ctx: AuthContext<User>) => {
     const {invocationContext} = ctx;
 
     for (const key of Object.keys(resolvers)) {
@@ -35,7 +41,7 @@ function toAuthHooks<Subject = AnyObject>(resolvers: Record<string, SubjectResol
         const service = await getService(invocationContext, serviceTypeOrKey);
         subject = await resolve(service, ctx);
       } else {
-        let resolve: SubjectResolveFn<Subject>;
+        let resolve: SubjectResolveFn<Subject, User>;
         if (isBindingAddress(resolver)) {
           resolve = await invocationContext.get<SubjectResolveFn<Subject>>(resolver);
         } else if (isProviderClass(resolver)) {
@@ -61,11 +67,11 @@ function toAuthHooks<Subject = AnyObject>(resolvers: Record<string, SubjectResol
   };
 }
 
-function sureSubjectHooks(context: Context) {
+function sureSubjectHooks<User extends IAuthUserWithRoles = IAuthUserWithRoles>(context: Context) {
   if (!context.contains(AclBindings.Auth.SUBJECT_HOOKS)) {
     context.bind(AclBindings.Auth.SUBJECT_HOOKS).to([]);
   }
-  return context.getSync(AclBindings.Auth.SUBJECT_HOOKS);
+  return context.getSync<AuthHookFn<User>[]>(AclBindings.Auth.SUBJECT_HOOKS);
 }
 
 function possibleServiceKeys(serviceTypeOrKey: AnyClass) {
