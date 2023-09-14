@@ -22,7 +22,7 @@ export class UserAbilityBuilder<
     this.permissionsFor(role);
   };
 
-  permissionsFor(role: string): void {
+  protected permissionsFor(role: string): void {
     for (const p of this.permissions) {
       const rolePermissions = p[role];
       if (rolePermissions) {
