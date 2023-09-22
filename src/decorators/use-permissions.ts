@@ -13,8 +13,8 @@ export const PERMISSIONS_METHOD_KEY = MetadataAccessor.create<PermissionsMetadat
 
 export const PERMISSIONS_CLASS_KEY = MetadataAccessor.create<PermissionsMetadata, ClassDecorator>('permissions:class');
 
-export function usePermissions(options: SingleOrArray<AnyPermissions>) {
-  const spec = toArray(options);
+export function usePermissions(permissions: SingleOrArray<AnyPermissions>) {
+  const spec = toArray(permissions);
   return function usePermissionsDecoratorForClassOrMethod(
     // Class or a prototype
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
