@@ -227,7 +227,7 @@ describe('Authorization', () => {
       });
 
       it(`can update own post`, () => {
-        return api.updateById({id: persistedTodo.id}).expect(204);
+        return api.updateById({id: persistedTodo.id}).send(persistedTodo).expect(204);
       });
 
       it(`can not update other user's post`, async () => {
